@@ -30,8 +30,10 @@ const Navbar = () => {
     <Link to="/admin/bookings" style={{ color: 'white', textDecoration: 'none' }}>Platform Activity</Link>
       <Link to="/admin/reviews" style={{ color: 'white', textDecoration: 'none' }}>Reviews</Link>
       <Link to="/admin/transactions" style={{color: 'white', textDecoration: 'none'}}>Transactions</Link>
+      <Link to="/admin/feedback" style={{color: 'white', textDecoration: 'none'}}>Feedback</Link>
            </>
 )}
+{userInfo.role!=='admin' &&  <Link to="/support" style={{color: 'white', textDecoration: 'none'}}>Support </Link>}
             {userInfo.role === 'provider' && (
               <>
                   <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</Link>

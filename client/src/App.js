@@ -21,6 +21,8 @@ import ProviderEarningsPage from './pages/ProviderEarningsPage';
 import UserTransactionsPage from './pages/UserTransactionsPage';
 import ProviderTransactionsPage from './pages/ProviderTransactionsPage';
 import AdminTransactionsPage from './pages/AdminTransactionsPage';
+import SupportPage from './pages/SupportPage';
+import AdminFeedbackPage from './pages/AdminFeedbackPage';
 function App() {
   return (
     <>
@@ -44,11 +46,13 @@ function App() {
              <Route path="/earnings" element={<ProviderEarningsPage />} />
               <Route path="/provider/transactions" element={<ProviderTransactionsPage />} />
               <Route path="/transactions" element={<UserTransactionsPage />} />
+               <Route path="/support" element={<SupportPage />} />
              <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> 
               <Route path="/admin/bookings" element={<AllBookingsPage />} /> {/* Add this route */}
                 <Route path="/admin/reviews" element={<AllReviewsPage />} />
                 <Route path="/admin/transactions" element={<AdminTransactionsPage />} />
+                <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
             </Route>
           </Route>
         </Routes>

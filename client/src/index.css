@@ -501,3 +501,17 @@ code {
   text-decoration: none;
   font-weight: bold;
 }
+/* --- Support Page Styles --- */
+.support-container { max-width: 700px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.support-form { display: flex; flex-direction: column; gap: 1rem; }
+.support-form .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+.support-form input, .support-form select, .support-form textarea { width: 100%; padding: 0.75rem; border-radius: 4px; border: 1px solid #ccc; }
+.support-form textarea { min-height: 150px; }
+
+/* --- Admin Feedback Page Styles --- */
+.admin-feedback-container { max-width: 1000px; margin: 2rem auto; }
+.feedback-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.feedback-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #f7f9fc; border-bottom: 1px solid #e0e0e0; }
+.feedback-header h3 { margin: 0; }
+.feedback-body { padding: 1.5rem; line-height: 1.6; }
+.feedback-footer { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #f7f9fc; border-top: 1px solid #e0e0e0; font-size: 0.9rem; color: #555; }

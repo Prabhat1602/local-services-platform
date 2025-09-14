@@ -14,7 +14,8 @@ const authRoutes = require('./routes/authRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
- // Import user routes
+const feedbackRoutes = require('./routes/feedbackRoutes'); 
+// Import user routes
 const Message = require('./models/Message'); // Import the Message model
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes'); // Import chat routes
@@ -58,6 +59,7 @@ app.use('/api/chat', chatRoutes); // Mount chat routes
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/provider', providerRoutes); 
+app.use('/api/feedback', feedbackRoutes);
 // Socket.IO Connection Logic
 // --- UPDATED Socket.IO LOGIC ---
 io.on('connection', (socket) => {
