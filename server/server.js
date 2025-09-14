@@ -28,16 +28,16 @@ const app = express();
 const server = http.createServer(app); // Create an HTTP server from the Express app
 const io = new Server(server, { // Attach socket.io to the HTTP server
   cors: {
-    origin: 'http://localhost:3000', // Allow connections from our frontend
+    origin: 'https://local-services-platform.vercel.app', // Allow connections from our frontend
     methods: ['GET', 'POST'],
   },
 });
 app.use('/api/payments/webhook', paymentRoutes);
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://local-services-platform.vercel.app' }));
 app.use(express.json()); // General JSON parser
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://local-services-platform.vercel.app' }));
 app.use(express.json());
 
 // Database Connection
