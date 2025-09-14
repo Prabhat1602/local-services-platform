@@ -1,0 +1,382 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+/* --- My Bookings Page Styles --- */
+
+.bookings-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.booking-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.booking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f7f9fc;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.booking-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.booking-card-body {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.booking-card-body p {
+  margin: 0;
+  color: #555;
+}
+
+.booking-card-actions {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.status-pending { background-color: #f39c12; }
+.status-confirmed { background-color: #2980b9; }
+.status-completed { background-color: #27ae60; }
+.status-cancelled { background-color: #7f8c8d; }
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btn-cancel { background-color: #e74c3c; color: white; }
+.btn-cancel:hover { background-color: #c0392b; }
+.btn-review { background-color: #3498db; color: white; }
+.btn-review:hover { background-color: #2980b9; }
+.btn-submit { background-color: #27ae60; color: white; }
+.btn-secondary { background-color: #bdc3c7; color: #333; }
+
+.review-form {
+  margin: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.review-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.review-form .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.review-form select,
+.review-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.review-form .form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+/* --- Chat Page Styles --- */
+.chat-container {
+  display: flex;
+  height: calc(100vh - 100px); /* Full height minus navbar */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.chat-sidebar {
+  width: 30%;
+  border-right: 1px solid #ddd;
+  background: #f9f9f9;
+}
+
+.chat-sidebar h2 {
+  padding: 1rem;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 1.2rem;
+}
+
+.conversation-tab {
+  padding: 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.conversation-tab:hover {
+  background: #e9e9e9;
+}
+
+.chat-main {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  padding: 0.5rem 1rem;
+  border-radius: 18px;
+  max-width: 70%;
+  margin-bottom: 0.5rem;
+}
+
+.message.sent {
+  background: #3498db;
+  color: white;
+  align-self: flex-end;
+}
+
+.message.received {
+  background: #ecf0f1;
+  color: #333;
+  align-self: flex-start;
+}
+
+.chat-form {
+  display: flex;
+  padding: 1rem;
+  border-top: 1px solid #ddd;
+}
+
+.chat-form input {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 0.75rem;
+}
+
+.chat-form button {
+  border: none;
+  background: #3498db;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  margin-left: 0.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.no-chat-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #777;
+}
+
+/* --- Profile Page Styles --- */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.profile-form-wrapper {
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.profile-form-wrapper h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.profile-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.profile-form input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.profile-form input:disabled {
+  background: #f4f4f4;
+}
+.notification-container {
+  position: relative;
+}
+.notification-bell {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: relative;
+  color: white;
+}
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+}
+.notification-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  z-index: 1000;
+  color: black;
+}
+.notification-item {
+  display: block;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  text-decoration: none;
+  color: #333;
+}
+.notification-item:hover {
+  background: #f7f7f7;
+}
+.notification-item small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #888;
+}
+/* Add these to your existing styles */
+.btn-reschedule {
+  background-color: #f39c12;
+  color: white;
+}
+.btn-reschedule:hover {
+  background-color: #e67e22;
+}
+
+.reschedule-form {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.reschedule-form input[type="date"] {
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.time-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.time-slots button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #3498db;
+  background: white;
+  color: #3498db;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.time-slots button:hover:not(:disabled) {
+  background: #3498db;
+  color: white;
+}
+
+.time-slots button:disabled {
+  background: #ecf0f1;
+  color: #bdc3c7;
+  border-color: #bdc3c7;
+  cursor: not-allowed;
+}
+/* Add this to your existing styles */
+.btn-pay {
+  background-color: #27ae60;
+  color: white;
+}
+.btn-pay:hover {
+  background-color: #229954;
+}
+/* Add this to your existing button styles */
+.btn-delete {
+  background-color: #95a5a6;
+  color: white;
+  margin-left: auto; /* Pushes the button to the far right */
+}
+.btn-delete:hover {
+  background-color: #7f8c8d;
+}
