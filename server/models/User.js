@@ -15,12 +15,24 @@ const UserSchema = new mongoose.Schema({
     coordinates: { type: [Number], default: [0, 0] }, // [longitude, latitude]
   },
   },
+    providerStatus: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: 'Approved', // Default is 'Approved' so regular users are unaffected
+  },
+    earnings: {
+    type: Number,
+    default: 0,
+  },
 }, { timestamps: true });
 UserSchema.index({ location: '2dsphere' });
 // Hash password before saving the user
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
+  }
+    if (this.isModified('role') && this.role === 'provider') {
+    this.providerStatus = 'Pending';
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

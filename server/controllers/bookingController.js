@@ -217,3 +217,34 @@ exports.deleteBooking = async (req, res) => {
     res.status(500).json({ message: 'Server Error: ' + error.message });
   }
 };
+// /server/controllers/bookingController.js
+
+// ... (keep all existing functions)
+
+// @desc    File a dispute on a booking
+// @route   PUT /api/bookings/:id/dispute
+exports.disputeBooking = async (req, res) => {
+  const { reason } = req.body;
+
+  try {
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Ensure the user filing the dispute is the one who made the booking
+    if (booking.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: 'User not authorized' });
+    }
+
+    booking.isDisputed = true;
+    booking.disputeReason = reason;
+    await booking.save();
+
+    // You could also create a notification for the admin here
+    res.json({ message: 'Dispute has been filed successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error: ' + error.message });
+  }
+};

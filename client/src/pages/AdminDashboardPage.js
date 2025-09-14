@@ -1,56 +1,114 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+
+// Helper component for displaying stats. It needs to be defined in the file.
+const StatCard = ({ title, value, icon }) => (
+  <div className="stat-card">
+    <div className="stat-icon">{icon}</div>
+    <div className="stat-info">
+      <h4>{title}</h4>
+      <p>{value}</p>
+    </div>
+  </div>
+);
 
 const AdminDashboardPage = () => {
   const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const { token } = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const token = userInfo?.token;
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
+  // Combined useEffect to fetch all necessary data at once
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5001/api/admin/users', config);
-        setUsers(data);
+        setLoading(true);
+        // Fetch stats and users at the same time
+        const [statsData, usersData] = await Promise.all([
+          axios.get('http://localhost:5001/api/admin/stats', config),
+          axios.get('http://localhost:5001/api/admin/users', config)
+        ]);
+        setStats(statsData.data);
+        setUsers(usersData.data);
       } catch (err) {
-        setError('Failed to fetch users.');
+        setError('Failed to fetch dashboard data.');
       } finally {
         setLoading(false);
       }
     };
-    fetchUsers();
-  }, []);
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
+
+  const handleStatusUpdate = async (providerId, newStatus) => {
+    try {
+      setSuccess('');
+      await axios.put(`http://localhost:5001/api/admin/providers/${providerId}/status`, { status: newStatus }, config);
+      setSuccess(`Provider status updated to ${newStatus}.`);
+      // Update the user's status in the local state to reflect the change instantly
+      setUsers(users.map(user => user._id === providerId ? { ...user, providerStatus: newStatus } : user));
+    } catch (error) {
+      setError('Failed to update provider status.');
+    }
+  };
 
   if (loading) return <p>Loading data...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
+  // Filter users to get only pending providers
+  const pendingProviders = users.filter(user => user.role === 'provider' && user.providerStatus === 'Pending');
+
   return (
     <div>
       <h1>Admin Dashboard</h1>
-      <h2>All Users ({users.length})</h2>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid #ddd', background: '#f7f7f7' }}>
-            <th style={{ padding: '0.5rem', textAlign: 'left' }}>ID</th>
-            <th style={{ padding: '0.5rem', textAlign: 'left' }}>Name</th>
-            <th style={{ padding: '0.5rem', textAlign: 'left' }}>Email</th>
-            <th style={{ padding: '0.5rem', textAlign: 'left' }}>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(user => (
-            <tr key={user._id} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '0.5rem' }}>{user._id}</td>
-              <td style={{ padding: '0.5rem' }}>{user.name}</td>
-              <td style={{ padding: '0.5rem' }}>{user.email}</td>
-              <td style={{ padding: '0.5rem' }}>{user.role}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {success && <p style={{ color: 'green' }}>{success}</p>}
+      
+      {/* Stats Report Section */}
+      {stats && (
+        <div className="stats-grid">
+          <StatCard title="Total Users" value={stats.totalUsers} icon="👥" />
+          <StatCard title="Total Services" value={stats.totalServices} icon="🛠️" />
+          <StatCard title="Total Bookings" value={stats.totalBookings} icon="📅" />
+          <StatCard title="Total Revenue" value={`$${stats.totalRevenue.toFixed(2)}`} icon="💰" />
+          <StatCard title="Average Rating" value={`⭐ ${stats.averageRating}`} icon="🌟" />
+        </div>
+      )}
+      
+      {/* Section for Pending Providers */}
+      <div className="admin-section">
+        <h2>Pending Provider Approvals ({pendingProviders.length})</h2>
+        {pendingProviders.length > 0 ? (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingProviders.map(provider => (
+                <tr key={provider._id}>
+                  <td>{provider.name}</td>
+                  <td>{provider.email}</td>
+                  <td>
+                    <button onClick={() => handleStatusUpdate(provider._id, 'Approved')} className="btn btn-approve">Approve</button>
+                    <button onClick={() => handleStatusUpdate(provider._id, 'Rejected')} className="btn btn-reject">Reject</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No pending provider requests.</p>
+        )}
+      </div>
     </div>
   );
 };

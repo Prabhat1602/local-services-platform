@@ -8,6 +8,7 @@ const {
   getBookedSlots,
     rescheduleBooking,
       deleteBooking,
+       disputeBooking,
 } = require('../controllers/bookingController');
 const { protect, provider } = require('../middleware/authMiddleware'); // We still need 'provider' for other routes
 
@@ -30,4 +31,5 @@ router.route('/:id/status').put(protect, updateBookingStatus);
 router.route('/booked-slots/:serviceId').get(getBookedSlots);
 router.route('/:id/reschedule').put(protect, rescheduleBooking);
 router.route('/:id').delete(protect, deleteBooking);
+router.route('/:id/dispute').put(protect, disputeBooking);
 module.exports = router;

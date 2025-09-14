@@ -24,13 +24,17 @@ const Navbar = () => {
             <Link to="/profile" style={{ color: 'white', textDecoration: 'none' }}>Profile</Link>
             <Link to="/chat" style={{ color: 'white', textDecoration: 'none' }}>Chat</Link>
            {userInfo && userInfo.role === 'admin' && (
-  <Link to="/admin/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>
-    Admin Panel
-  </Link>
+             <>
+  <Link to="/admin/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}> Admin Panel</Link>
+      <Link to="/admin/dashboard" style={{ /*...*/ }}>User Management</Link>
+    <Link to="/admin/bookings" style={{ color: 'white', textDecoration: 'none' }}>Platform Activity</Link>
+      <Link to="/admin/reviews" style={{ color: 'white', textDecoration: 'none' }}>Reviews</Link>
+           </>
 )}
             {userInfo.role === 'provider' && (
               <>
-                <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</Link>
+                  <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</Link>
+    <Link to="/earnings" style={{ color: 'white', textDecoration: 'none' }}>Earnings</Link>
                 <Link to="/availability" style={{ color: 'white', textDecoration: 'none' }}>Set Availability</Link>
                 <Link to="/create-service" style={{ color: 'white', textDecoration: 'none' }}>Post a Service</Link>
               </>

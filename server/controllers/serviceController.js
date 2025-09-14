@@ -3,6 +3,9 @@ const geolib = require('geolib');
 // @desc    Create a new service
 // @route   POST /api/services
 exports.createService = async (req, res) => {
+   if (req.user.providerStatus !== 'Approved') {
+    return res.status(403).json({ message: 'Your provider account is not yet approved.' });
+  }
   const { title, category, description, price } = req.body;
   try {
     const service = new Service({

@@ -21,6 +21,7 @@ const chatRoutes = require('./routes/chatRoutes'); // Import chat routes
 const Notification = require('./models/Notification');
 const notificationRoutes = require('./routes/notificationRoutes')
 const startReminderJobs = require('./cron/reminderJobs'); 
+const providerRoutes = require('./routes/providerRoutes');
 
 const app = express();
 const server = http.createServer(app); // Create an HTTP server from the Express app
@@ -56,6 +57,7 @@ app.use('/api/users', userRoutes); // Mount user routes
 app.use('/api/chat', chatRoutes); // Mount chat routes
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/provider', providerRoutes); 
 // Socket.IO Connection Logic
 // --- UPDATED Socket.IO LOGIC ---
 io.on('connection', (socket) => {

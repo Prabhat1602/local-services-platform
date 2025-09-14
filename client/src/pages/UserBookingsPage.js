@@ -223,14 +223,80 @@
 // };
 
 // export default UserBookingsPage;
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { loadStripe } from '@stripe/stripe-js';
 
-// FIX #1: Define 'stripePromise' at the top level of the file
-const stripePromise = loadStripe('pk_test_51S5PPw46ZM3BU7keGRRCzVUfuXeKAQmEPZeIIA0EuTTT4PHIXIe8FJaQqmWtTY4wTrV0SWwEcDlJzmZHlO0idRAI00JX5THwJI');
+const stripePromise = loadStripe('pk_test_...your_publishable_key_here...');
 
+// Helper component for the Rescheduling UI
+const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {
+  const [selectedDate, setSelectedDate] = useState(new Date(booking.bookingDate));
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [service, setService] = useState(null);
+  const { token } = JSON.parse(localStorage.getItem('userInfo'));
+
+  const formatDate = (date) => new Date(date).toISOString().split('T')[0];
+
+  useEffect(() => {
+    const fetchServiceDetails = async () => {
+      const { data } = await axios.get(`http://localhost:5001/api/services/${booking.service._id}`);
+      setService(data);
+    };
+    fetchServiceDetails();
+  }, [booking.service._id]);
+
+  useEffect(() => {
+    if (!service) return;
+    const dayOfWeek = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
+    const schedule = service.availability.find(a => a.dayOfWeek === dayOfWeek);
+    let slots = [];
+    if (schedule) {
+      let current = parseInt(schedule.startTime.split(':')[0]);
+      const end = parseInt(schedule.endTime.split(':')[0]);
+      while (current < end) {
+        slots.push(`${String(current).padStart(2, '0')}:00`);
+        current++;
+      }
+    }
+    setAvailableSlots(slots);
+    
+    const fetchBookedSlots = async () => {
+      const { data: booked } = await axios.get(`http://localhost:5001/api/bookings/booked-slots/${service._id}?date=${formatDate(selectedDate)}`);
+      setBookedSlots(booked);
+    };
+    fetchBookedSlots();
+  }, [service, selectedDate]);
+
+  const handleRescheduleSubmit = async (timeSlot) => {
+    if (window.confirm(`Reschedule for ${new Date(selectedDate).toLocaleDateString()} at ${timeSlot}?`)) {
+      try {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        await axios.put(`http://localhost:5001/api/bookings/${booking._id}/reschedule`, { bookingDate: formatDate(selectedDate), timeSlot }, config);
+        onRescheduleSuccess();
+      } catch (error) {
+        alert(error.response?.data?.message || 'Failed to reschedule.');
+      }
+    }
+  };
+
+  return (
+    <div className="reschedule-form">
+      <h4>Select a New Date & Time</h4>
+      <input type="date" value={formatDate(selectedDate)} onChange={(e) => setSelectedDate(e.target.value)} min={formatDate(new Date())} />
+      <div className="time-slots">
+        {availableSlots.length > 0 ? availableSlots.map(slot => {
+          const isBooked = bookedSlots.includes(slot);
+          return <button key={slot} disabled={isBooked} onClick={() => handleRescheduleSubmit(slot)}>{isBooked ? 'Booked' : slot}</button>;
+        }) : <p>No slots available for this day.</p>}
+      </div>
+      <button onClick={onCancel} className="btn-secondary">Close</button>
+    </div>
+  );
+};
+
+// Main Page Component
 const UserBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -239,6 +305,8 @@ const UserBookingsPage = () => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [rescheduleBookingId, setRescheduleBookingId] = useState(null);
+  const [showDisputeFormFor, setShowDisputeFormFor] = useState(null);
+  const [disputeReason, setDisputeReason] = useState('');
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
@@ -256,10 +324,8 @@ const UserBookingsPage = () => {
 
   useEffect(() => {
     if (userInfo?.token) {
-        fetchUserBookings();
+      fetchUserBookings();
     }
-    // By keeping the dependency array empty, this runs once every time the component mounts,
-    // which includes when you return from the Stripe payment page.
   }, []);
 
   const handleCancelBooking = async (bookingId) => {
@@ -271,6 +337,29 @@ const UserBookingsPage = () => {
       } catch (err) {
         setError('Failed to cancel booking.');
       }
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId) => {
+    if (window.confirm('Are you sure you want to permanently delete this booking?')) {
+      try {
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        await axios.delete(`http://localhost:5001/api/bookings/${bookingId}`, config);
+        fetchUserBookings();
+      } catch (err) {
+        setError('Failed to delete booking.');
+      }
+    }
+  };
+
+  const handlePayment = async (bookingId) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      const { data: session } = await axios.post('http://localhost:5001/api/payments/create-checkout-session', { bookingId }, config);
+      const stripe = await stripePromise;
+      await stripe.redirectToCheckout({ sessionId: session.id });
+    } catch (err) {
+      setError('Payment initiation failed. Please try again.');
     }
   };
 
@@ -286,31 +375,18 @@ const UserBookingsPage = () => {
       setError(err.response?.data?.message || 'Failed to submit review.');
     }
   };
-    const handleDeleteBooking = async (bookingId) => {
-    if (window.confirm('Are you sure you want to permanently delete this booking? This action cannot be undone.')) {
-      try {
-        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        await axios.delete(`http://localhost:5001/api/bookings/${bookingId}`, config);
-        fetchUserBookings(); // Refresh the list after deleting
-      } catch (err) {
-        setError('Failed to delete booking.');
-      }
-    }
-  };
-  const handlePayment = async (bookingId) => {
+
+  const handleDisputeSubmit = async (e) => {
+    e.preventDefault();
+    const bookingToDispute = bookings.find(b => b._id === showDisputeFormFor);
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data: session } = await axios.post(
-        'http://localhost:5001/api/payments/create-checkout-session',
-        { bookingId },
-        config
-      );
-      const stripe = await stripePromise;
-      await stripe.redirectToCheckout({
-        sessionId: session.id,
-      });
+      await axios.put(`http://localhost:5001/api/bookings/${bookingToDispute._id}/dispute`, { reason: disputeReason }, config);
+      setShowDisputeFormFor(null);
+      setDisputeReason('');
+      fetchUserBookings();
     } catch (err) {
-      setError('Payment initiation failed. Please try again.');
+      setError(err.response?.data?.message || 'Failed to submit dispute.');
     }
   };
 
@@ -326,12 +402,12 @@ const UserBookingsPage = () => {
         <div className="bookings-list">
           {bookings.map((booking) => {
             const bookingDate = new Date(booking.bookingDate);
-            const canCancel = booking.status !== 'Cancelled' && booking.status !== 'Completed';
+            const isOldBooking = booking.status === 'Completed' || booking.status === 'Cancelled';
+            const canCancel = !isOldBooking && booking.status !== 'Pending';
             const canReview = booking.status === 'Completed' && !booking.hasBeenReviewed;
-            const canReschedule = booking.status !== 'Cancelled' && booking.status !== 'Completed';
-              const isOldBooking = booking.status === 'Completed' || booking.status === 'Cancelled';
-            // FIX #2: Define 'canPay' here inside the map function
+            const canReschedule = !isOldBooking;
             const canPay = booking.status === 'Pending';
+            const canDispute = booking.status !== 'Pending' && !booking.isDisputed;
 
             return (
               <div key={booking._id} className="booking-card">
@@ -346,21 +422,23 @@ const UserBookingsPage = () => {
                 </div>
                 <div className="booking-card-actions">
                   {canPay && <button onClick={() => handlePayment(booking._id)} className="btn btn-pay">Pay Now</button>}
-                  {canCancel && <button onClick={() => handleCancelBooking(booking._id)} className="btn btn-cancel">Cancel Booking</button>}
+                  {canCancel && <button onClick={() => handleCancelBooking(booking._id)} className="btn btn-cancel">Cancel</button>}
                   {canReschedule && <button onClick={() => setRescheduleBookingId(booking._id)} className="btn btn-reschedule">Reschedule</button>}
                   {canReview && <button onClick={() => setShowReviewFormFor(booking._id)} className="btn btn-review">Leave a Review</button>}
-                  {isOldBooking && (
-                <button onClick={() => handleDeleteBooking(booking._id)} className="btn btn-delete">
-                  Delete
-                </button>
-              )}
+                  {canDispute && <button onClick={() => setShowDisputeFormFor(booking._id)} className="btn-dispute">Report a Problem</button>}
+                  {isOldBooking && <button onClick={() => handleDeleteBooking(booking._id)} className="btn btn-delete">Delete</button>}
                 </div>
 
-                {/* Reschedule and Review forms would go here */}
+                {booking.isDisputed && <p className="dispute-filed-message">A dispute has been filed for this booking.</p>}
                 
+                {rescheduleBookingId === booking._id && <RescheduleForm booking={booking} onRescheduleSuccess={() => { setRescheduleBookingId(null); fetchUserBookings(); }} onCancel={() => setRescheduleBookingId(null)} />}
+                
+                {showReviewFormFor === booking._id && <form onSubmit={handleReviewSubmit} className="review-form">{/* ... review form JSX ... */}</form>}
+                
+                {showDisputeFormFor === booking._id && <form onSubmit={handleDisputeSubmit} className="review-form">{/* ... dispute form JSX ... */}</form>}
               </div>
             );
-          })}
+})}
         </div>
       )}
     </div>
