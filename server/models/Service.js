@@ -35,6 +35,10 @@ const ServiceSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
+   image: {
+    type: String, // We will store the image URL from Cloudinary
+    required: true,
+  },
   numReviews: {
     type: Number,
     required: true,

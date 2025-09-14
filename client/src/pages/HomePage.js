@@ -75,6 +75,7 @@ const HomePage = () => {
           {services.map((service) => (
             <Link key={service._id} to={`/service/${service._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '5px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <img src={service.image} alt={service.title} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
                 <h3 style={{ marginTop: 0 }}>{service.title}</h3>
                 <div>
                   <span>⭐ {service.averageRating ? service.averageRating.toFixed(1) : '0.0'}</span>

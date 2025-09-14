@@ -4,6 +4,7 @@ const Service = require('../models/Service');
 const Notification = require('../models/Notification');
 const User = require('../models/User'); 
 const Transaction = require('../models/Transaction');
+const sendEmail = require('../utils/emailService'); // Import the service
 // @desc    Create a stripe checkout session
 // @route   POST /api/payments/create-checkout-session
 exports.createCheckoutSession = async (req, res) => {
@@ -65,7 +66,12 @@ exports.handleStripeWebhook = async (req, res) => {
             booking.paidAt = new Date();
             booking.status = 'Confirmed';
             await booking.save();
-
+             
+             sendEmail(
+                booking.user.email,
+                'Payment Successful - Your Booking is Confirmed!',
+                `<h1>Payment Confirmed</h1><p>Your payment for "${booking.service.title}" was successful. Your booking is now confirmed.</p>`
+            );
             // --- THIS IS THE FIX ---
             // Find the provider and update their earnings total
             const provider = await User.findById(booking.service.provider);

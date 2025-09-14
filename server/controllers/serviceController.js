@@ -2,11 +2,15 @@ const Service = require('../models/Service');
 const geolib = require('geolib');
 // @desc    Create a new service
 // @route   POST /api/services
+// ... (imports and existing functions)
+
 exports.createService = async (req, res) => {
-   if (req.user.providerStatus !== 'Approved') {
-    return res.status(403).json({ message: 'Your provider account is not yet approved.' });
-  }
   const { title, category, description, price } = req.body;
+  
+  if (!req.file) {
+    return res.status(400).json({ message: 'Please upload an image for the service.' });
+  }
+
   try {
     const service = new Service({
       title,
@@ -14,7 +18,9 @@ exports.createService = async (req, res) => {
       description,
       price,
       provider: req.user._id,
+      image: req.file.path, // Get the image URL from multer/cloudinary
     });
+
     const createdService = await service.save();
     res.status(201).json(createdService);
   } catch (error) {

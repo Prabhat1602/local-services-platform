@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer'); // Import multer
+const { storage } = require('../config/cloudinary'); // Import our cloudinary storage config
+const upload = multer({ storage }); // Initialize multer with our storage config
+
 const {
   createService,
   getServices,
@@ -13,7 +17,7 @@ const { protect, provider } = require('../middleware/authMiddleware');
 // POST /api/services (private route for providers)
 router.route('/')
   .get(getServices)
-  .post(protect, provider, createService);
+  .post(protect, provider, upload.single('image'), createService);
 
 router.route('/myservices').get(protect, provider, getMyServices);
 router.route('/').get(getServices).post(protect, provider, createService);

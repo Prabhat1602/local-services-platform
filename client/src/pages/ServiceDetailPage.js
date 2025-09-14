@@ -118,6 +118,7 @@ const handleStartChat = async () => {
   return (
     <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '2rem', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
       {/* ... Service details ... */}
+       <img src={service.image} alt={service.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '8px' }} />
       <hr style={{ margin: '2rem 0' }} />
       <h3>Book an Appointment</h3>
       <input

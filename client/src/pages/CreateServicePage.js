@@ -7,41 +7,118 @@ const CreateServicePage = () => {
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [image, setImage] = useState(null); // State for the image file
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
 
-    const { token } = JSON.parse(localStorage.getItem('userInfo'));
+    if (!image) {
+      setError('Please select an image for your service.');
+      setLoading(false);
+      return;
+    }
 
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    // Use FormData to handle file uploads
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('image', image); // Key 'image' must match the backend
 
     try {
-      await axios.post('http://localhost:5001/api/services', { title, category, description, price }, config);
+      const { token } = JSON.parse(localStorage.getItem('userInfo'));
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Important for file uploads
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      await axios.post('http://localhost:5001/api/services', formData, config);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create service');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '2rem', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-      <h2>Create a New Service</h2>
-      {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <input type="text" placeholder="Service Title" value={title} onChange={(e) => setTitle(e.target.value)} required style={{ padding: '0.5rem' }} />
-        <input type="text" placeholder="Category (e.g., Plumbing, Tutoring)" value={category} onChange={(e) => setCategory(e.target.value)} required style={{ padding: '0.5rem' }} />
-        <textarea placeholder="Detailed Description" value={description} onChange={(e) => setDescription(e.target.value)} required style={{ padding: '0.5rem', minHeight: '100px' }} />
-        <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} required style={{ padding: '0.5rem' }} />
-        <button type="submit" style={{ padding: '0.75rem', background: '#2980b9', color: 'white', border: 'none', cursor: 'pointer' }}>Create Service</button>
-      </form>
+    <div className="form-container">
+      <div className="form-wrapper">
+        <h2>Create a New Service</h2>
+        {error && <p className="error-message">{error}</p>}
+        
+        <form onSubmit={handleSubmit} className="service-form">
+          <div className="form-group">
+            <label htmlFor="title">Service Title</label>
+            <input
+              id="title"
+              type="text"
+              placeholder="e.g., Expert Plumbing Repairs"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="category">Category</label>
+            <input
+              id="category"
+              type="text"
+              placeholder="e.g., Home Repair, Tutoring"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              placeholder="Describe the service you offer in detail..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="price">Price ($)</label>
+            <input
+              id="price"
+              type="number"
+              placeholder="e.g., 50"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="image">Service Image</label>
+            <input
+              id="image"
+              type="file"
+              accept="image/png, image/jpeg, image/jpg"
+              onChange={(e) => setImage(e.target.files[0])}
+              required
+            />
+          </div>
+          
+          <button type="submit" className="btn-submit" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Service'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

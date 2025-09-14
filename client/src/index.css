@@ -515,3 +515,48 @@ code {
 .feedback-header h3 { margin: 0; }
 .feedback-body { padding: 1.5rem; line-height: 1.6; }
 .feedback-footer { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #f7f9fc; border-top: 1px solid #e0e0e0; font-size: 0.9rem; color: #555; }
+/* --- Form Styles --- */
+.form-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.form-wrapper {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-wrapper h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.service-form .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.service-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.service-form input,
+.service-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.service-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
