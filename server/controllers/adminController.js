@@ -116,17 +116,27 @@ exports.toggleReviewVisibility = async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 };
+// /server/controllers/adminController.js
+
+// ... (keep all other imports and functions)
+
+// @desc    Get platform statistics for reports
+// @route   GET /api/admin/stats
 exports.getStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalServices = await Service.countDocuments();
     const totalBookings = await Booking.countDocuments();
+    
+    // --- THIS IS THE FIX ---
+    // We calculate revenue from bookings that are marked as paid.
     const totalRevenue = await Booking.aggregate([
-      { $match: { status: 'Completed' } }, // Only count revenue from completed bookings
+      { $match: { isPaid: true } }, // Change from status: 'Completed' to isPaid: true
       { $lookup: { from: 'services', localField: 'service', foreignField: '_id', as: 'serviceDetails' } },
       { $unwind: '$serviceDetails' },
       { $group: { _id: null, total: { $sum: '$serviceDetails.price' } } }
     ]);
+    // --- END FIX ---
 
     const averageRating = await Review.aggregate([
         { $group: { _id: null, avg: { $avg: '$rating' } } }

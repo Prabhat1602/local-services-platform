@@ -2,7 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
 const Notification = require('../models/Notification');
-
+const User = require('../models/User'); 
 // @desc    Create a stripe checkout session
 // @route   POST /api/payments/create-checkout-session
 exports.createCheckoutSession = async (req, res) => {
@@ -53,27 +53,37 @@ exports.createCheckoutSession = async (req, res) => {
 exports.handleStripeWebhook = async (req, res) => {
     const event = req.body;
 
-    // Handle the event
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
         const bookingId = session.metadata.bookingId;
 
-        // Find the booking and update its status
-        const booking = await Booking.findById(bookingId);
+        const booking = await Booking.findById(bookingId).populate('service user');
+        
         if (booking) {
-            booking.status = 'Confirmed'; // Or you could add a 'paid' boolean field
+            booking.isPaid = true;
+            booking.paidAt = new Date();
+            booking.status = 'Confirmed';
             await booking.save();
 
-            // Create a notification for the user
+            // --- THIS IS THE FIX ---
+            // Find the provider and update their earnings total
+            const provider = await User.findById(booking.service.provider);
+            if(provider) {
+                // Add the price of the service to the provider's current earnings
+                provider.earnings = (provider.earnings || 0) + booking.service.price;
+                await provider.save();
+            }
+            // --- END FIX ---
+
+            // Create notifications (this part is the same as before)
             await Notification.create({
-                user: booking.user,
+                user: booking.user._id,
                 message: `Your payment for "${booking.service.title}" was successful!`,
                 link: '/my-bookings'
             });
-            // Create a notification for the provider
             await Notification.create({
                 user: booking.provider,
-                message: `A booking for your service "${booking.service.title}" has been paid for.`,
+                message: `A new booking for "${booking.service.title}" has been paid for.`,
                 link: '/dashboard'
             });
         }

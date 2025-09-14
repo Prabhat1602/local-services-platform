@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js'; // Import Stripe
 // A simple helper to format dates as YYYY-MM-DD
 const formatDate = (date) => date.toISOString().split('T')[0];
-const stripePromise = loadStripe('pk_test_51S5PPw46ZM3BU7keGRRCzVUfuXeKAQmEPZeIIA0EuTTT4PHIXIe8FJaQqmWtTY4wTrV0SWwEcDlJzmZHlO0idRAI00JX5THwJI');
+const stripePromise = loadStripe('pk_test_51S5Pyn3WVAC5yOJa8dWVgJpXvJWSKR3U2i9ASf6ijxegh4fxYv6pTOOaDey4L0cqsHMnXBcJ6Cf4SbAMoMQHpdkx00gNp9Wkfs');
 const ServiceDetailPage = () => {
   const [service, setService] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());

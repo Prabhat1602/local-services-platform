@@ -30,6 +30,13 @@ const BookingSchema = new mongoose.Schema({
   disputeReason: {
     type: String,
   },
+    isPaid: {
+    type: Boolean,
+    default: false,
+  },
+  paidAt: {
+    type: Date,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', BookingSchema);

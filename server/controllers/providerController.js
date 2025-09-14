@@ -1,4 +1,5 @@
 const Booking = require('../models/Booking');
+const User = require('../models/User'); // This line was likely missing
 
 // @desc    Get earnings and stats for the logged-in provider
 // @route   GET /api/provider/stats
@@ -6,26 +7,16 @@ exports.getProviderStats = async (req, res) => {
   try {
     const providerId = req.user._id;
 
-    // Find all completed bookings for this provider
-    const completedBookings = await Booking.find({
-      provider: providerId,
-      status: 'Completed',
-    }).populate('service', 'price');
-
-    // Calculate total revenue
-    const totalRevenue = completedBookings.reduce((acc, booking) => {
-      return acc + (booking.service?.price || 0);
-    }, 0);
-    
-    // You can add a platform fee calculation here if you want
-    // const platformFee = totalRevenue * 0.10; // Example: 10% fee
-    // const netEarnings = totalRevenue - platformFee;
+    // We need the User model to find the provider
+    const provider = await User.findById(providerId);
+    if (!provider) {
+        return res.status(404).json({ message: 'Provider not found' });
+    }
 
     const stats = {
       totalBookings: await Booking.countDocuments({ provider: providerId }),
-      completedBookings: completedBookings.length,
-      totalRevenue: totalRevenue,
-      // netEarnings: netEarnings, // Uncomment if you add a fee
+      completedBookings: await Booking.countDocuments({ provider: providerId, status: 'Completed' }),
+      totalRevenue: provider.earnings || 0,
     };
 
     res.json(stats);

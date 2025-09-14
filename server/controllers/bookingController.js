@@ -40,10 +40,10 @@ exports.createBooking = async (req, res) => {
 // @route   GET /api/bookings/mybookings
 exports.getProviderBookings = async (req, res) => {
   try {
-    // Find bookings where the provider field matches the logged-in user's ID
     const bookings = await Booking.find({ provider: req.user._id })
-      .populate('service', 'title price') // Get service title and price
-      .populate('user', 'name email');   // Get the user's name and email
+      .populate('service', 'title price')
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 }); // <-- ADD THIS LINE
 
     res.json(bookings);
   } catch (error) {
