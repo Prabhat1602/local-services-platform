@@ -40,7 +40,7 @@ const CreateServicePage = () => {
         },
       };
 
-      await axios.post('https://local-services-api.onrender.com/', formData, config);
+      await axios.post('https://local-services-api.onrender.com', formData, config);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create service');
