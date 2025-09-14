@@ -7,7 +7,7 @@ const ProfilePage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
-
+ const [location, setLocation] = useState(null);
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
 
@@ -15,7 +15,21 @@ const ProfilePage = () => {
     setName(userInfo.name);
     setEmail(userInfo.email);
   }, [userInfo.name, userInfo.email]);
-
+ const handleGetLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const newLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setLocation(newLocation);
+        setMessage('Location captured! Click "Update Profile" to save.');
+      },
+      () => {
+        setMessage('Could not get location. Please enable location services in your browser.');
+      }
+    );
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
@@ -23,15 +37,23 @@ const ProfilePage = () => {
       setMessage('Passwords do not match');
       return;
     }
-    try {
-      const { data } = await axios.put('http://localhost:5001/api/users/profile', { name, password }, config);
-      // Update local storage with new name
-      localStorage.setItem('userInfo', JSON.stringify({ ...userInfo, name: data.name }));
-      setMessage('Profile updated successfully!');
+      try {
+        const updateData = { name };
+        if (password) {
+            updateData.password = password;
+        }
+        if (location) {
+            updateData.location = location;
+        }
+        await axios.put('http://localhost:5001/api/users/profile', updateData, config);
+        setMessage('Profile updated successfully!');
     } catch (error) {
-      setMessage('Failed to update profile.');
+        setMessage('Failed to update profile.');
     }
   };
+ 
+
+
 
   return (
     <div className="profile-container">
@@ -56,6 +78,9 @@ const ProfilePage = () => {
             <label>Confirm New Password</label>
             <input type="password" placeholder="Leave blank to keep the same" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           </div>
+             <div className="form-group">
+            <button type="button" onClick={handleGetLocation}>Set My Current Location</button>
+        </div>
           <button type="submit" className="btn-submit">Update Profile</button>
         </form>
       </div>

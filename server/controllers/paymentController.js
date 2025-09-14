@@ -3,6 +3,7 @@ const Booking = require('../models/Booking');
 const Service = require('../models/Service');
 const Notification = require('../models/Notification');
 const User = require('../models/User'); 
+const Transaction = require('../models/Transaction');
 // @desc    Create a stripe checkout session
 // @route   POST /api/payments/create-checkout-session
 exports.createCheckoutSession = async (req, res) => {
@@ -74,7 +75,13 @@ exports.handleStripeWebhook = async (req, res) => {
                 await provider.save();
             }
             // --- END FIX ---
-
+                 await Transaction.create({
+                booking: bookingId,
+                user: booking.user._id,
+                provider: booking.provider._id,
+                amount: booking.service.price,
+                stripePaymentId: session.payment_intent,
+            });
             // Create notifications (this part is the same as before)
             await Notification.create({
                 user: booking.user._id,
@@ -86,7 +93,7 @@ exports.handleStripeWebhook = async (req, res) => {
                 message: `A new booking for "${booking.service.title}" has been paid for.`,
                 link: '/dashboard'
             });
-        }
+             }
     }
 
     res.json({ received: true });

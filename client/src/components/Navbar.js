@@ -26,9 +26,10 @@ const Navbar = () => {
            {userInfo && userInfo.role === 'admin' && (
              <>
   <Link to="/admin/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}> Admin Panel</Link>
-      <Link to="/admin/dashboard" style={{ /*...*/ }}>User Management</Link>
+       <Link to="/admin/dashboard" className="admin-link">User Management</Link>
     <Link to="/admin/bookings" style={{ color: 'white', textDecoration: 'none' }}>Platform Activity</Link>
       <Link to="/admin/reviews" style={{ color: 'white', textDecoration: 'none' }}>Reviews</Link>
+      <Link to="/admin/transactions" style={{color: 'white', textDecoration: 'none'}}>Transactions</Link>
            </>
 )}
             {userInfo.role === 'provider' && (
@@ -37,11 +38,15 @@ const Navbar = () => {
     <Link to="/earnings" style={{ color: 'white', textDecoration: 'none' }}>Earnings</Link>
                 <Link to="/availability" style={{ color: 'white', textDecoration: 'none' }}>Set Availability</Link>
                 <Link to="/create-service" style={{ color: 'white', textDecoration: 'none' }}>Post a Service</Link>
+                 <Link to="/provider/transactions" style={{color: 'white', textDecoration: 'none'}}>Transactions</Link>
               </>
             )}
 
             {userInfo.role === 'user' && (
+              <>
               <Link to="/my-bookings" style={{ color: 'white', textDecoration: 'none' }}>My Bookings</Link>
+               <Link to="/transactions" style={{ color: 'white', textDecoration: 'none' }}>My Transactions</Link>
+               </>
             )}
             
             <span style={{ color: '#ecf0f1' }}>Hi, {userInfo.name}!</span>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe('pk_test_...your_publishable_key_here...');
+const stripePromise = loadStripe('pk_test_51S5Pyn3WVAC5yOJa8dWVgJpXvJWSKR3U2i9ASf6ijxegh4fxYv6pTOOaDey4L0cqsHMnXBcJ6Cf4SbAMoMQHpdkx00gNp9Wkfs');
 
 // Helper component for the Rescheduling UI
 const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {

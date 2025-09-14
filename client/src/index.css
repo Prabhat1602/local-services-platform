@@ -465,3 +465,39 @@ code {
   max-width: 900px;
   margin: 2rem auto;
 }
+/* --- Transactions Page Styles --- */
+.transactions-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.transactions-container h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.transactions-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-container th,
+.transactions-container td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.transactions-container thead {
+  background-color: #f7f9fc;
+}
+/* Add this new style to the bottom of your CSS file */
+.admin-link {
+  color: white !important; /* Use !important to override other styles */
+  text-decoration: none;
+  font-weight: bold;
+}

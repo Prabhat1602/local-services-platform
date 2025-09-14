@@ -18,6 +18,9 @@ import AdminDashboardPage from './pages/AdminDashboardPage'
 import AllBookingsPage from './pages/AllBookingsPage';
 import AllReviewsPage from './pages/AllReviewsPage';
 import ProviderEarningsPage from './pages/ProviderEarningsPage';
+import UserTransactionsPage from './pages/UserTransactionsPage';
+import ProviderTransactionsPage from './pages/ProviderTransactionsPage';
+import AdminTransactionsPage from './pages/AdminTransactionsPage';
 function App() {
   return (
     <>
@@ -39,10 +42,13 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} /> {/* Add profile route */}
             <Route path="/chat" element={<ChatPage />} /> 
              <Route path="/earnings" element={<ProviderEarningsPage />} />
+              <Route path="/provider/transactions" element={<ProviderTransactionsPage />} />
+              <Route path="/transactions" element={<UserTransactionsPage />} />
              <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> 
               <Route path="/admin/bookings" element={<AllBookingsPage />} /> {/* Add this route */}
                 <Route path="/admin/reviews" element={<AllReviewsPage />} />
+                <Route path="/admin/transactions" element={<AdminTransactionsPage />} />
             </Route>
           </Route>
         </Routes>

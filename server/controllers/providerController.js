@@ -1,6 +1,6 @@
 const Booking = require('../models/Booking');
 const User = require('../models/User'); // This line was likely missing
-
+const Transaction = require('../models/Transaction');
 // @desc    Get earnings and stats for the logged-in provider
 // @route   GET /api/provider/stats
 exports.getProviderStats = async (req, res) => {
@@ -22,5 +22,18 @@ exports.getProviderStats = async (req, res) => {
     res.json(stats);
   } catch (error) {
     res.status(500).json({ message: 'Server Error: ' + error.message });
+  }
+};
+exports.getProviderTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ provider: req.user._id })
+      .populate({
+          path: 'booking',
+          populate: { path: 'service', select: 'title' }
+      })
+      .sort({ createdAt: -1 });
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
   }
 };

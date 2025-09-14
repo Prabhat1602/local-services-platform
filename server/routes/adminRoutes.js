@@ -6,6 +6,7 @@ const { getAllUsers, deleteService , updateProviderStatus,
     getAllReviews,            // Import new function
   toggleReviewVisibility,
    getStats,
+    getAllTransactions, 
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/adminMiddleware');
@@ -19,5 +20,5 @@ router.route('/bookings/:id/resolve').put(protect, admin, resolveDispute);
 router.route('/reviews').get(protect, admin, getAllReviews);
 router.route('/reviews/:id/toggle-visibility').put(protect, admin, toggleReviewVisibility);
 router.route('/stats').get(protect, admin, getStats);
-
+router.route('/transactions').get(protect, admin, getAllTransactions);
 module.exports = router;

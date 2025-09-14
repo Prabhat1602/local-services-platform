@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Service = require('../models/Service');
 const Booking = require('../models/Booking');
 const Review = require('../models/Review');
+const Transaction = require('../models/Transaction');
 // @desc    Get all users
 // @route   GET /api/admin/users
 exports.getAllUsers = async (req, res) => {
@@ -151,5 +152,16 @@ exports.getStats = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Server Error: ' + error.message });
+  }
+};
+exports.getAllTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find({})
+      .populate('user', 'name')
+      .populate('provider', 'name')
+      .sort({ createdAt: -1 });
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
   }
 };
