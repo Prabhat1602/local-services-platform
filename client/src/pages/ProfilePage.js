@@ -45,7 +45,7 @@ const ProfilePage = () => {
         if (location) {
             updateData.location = location;
         }
-        await axios.put('http://localhost:5001/api/users/profile', updateData, config);
+        await axios.put('https://local-services-api.onrender.com/api/users/profile', updateData, config);
         setMessage('Profile updated successfully!');
     } catch (error) {
         setMessage('Failed to update profile.');

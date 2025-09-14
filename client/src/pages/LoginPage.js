@@ -12,7 +12,7 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await axios.post('http://localhost:5001/api/auth/login', { email, password });
+      const { data } = await axios.post('https://local-services-api.onrender.com/api/auth/login', { email, password });
       localStorage.setItem('userInfo', JSON.stringify(data));
       // Force a page refresh to update the navbar correctly
       window.location.href = '/';

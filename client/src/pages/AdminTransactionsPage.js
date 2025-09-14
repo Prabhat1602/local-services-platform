@@ -12,7 +12,7 @@ const AdminTransactionsPage = () => {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
         // Fetching from the admin's endpoint
-        const { data } = await axios.get('http://localhost:5001/api/admin/transactions', config);
+        const { data } = await axios.get('https://local-services-api.onrender.com/api/admin/transactions', config);
         setTransactions(data);
       } catch (err) {
         setError("Failed to fetch platform transactions.");

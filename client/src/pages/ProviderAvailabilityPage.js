@@ -17,7 +17,7 @@ const ProviderAvailabilityPage = () => {
   useEffect(() => {
     const fetchMyServices = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5001/api/services/myservices', config);
+        const { data } = await axios.get('https://local-services-api.onrender.com/api/services/myservices', config);
         setMyServices(data);
         if (data.length > 0) {
           // Pre-select the first service
@@ -61,7 +61,7 @@ const ProviderAvailabilityPage = () => {
       return;
     }
     try {
-      await axios.put(`http://localhost:5001/api/services/${selectedServiceId}/availability`, { availability }, config);
+      await axios.put(`https://local-services-api.onrender.com/api/services/${selectedServiceId}/availability`, { availability }, config);
       setSuccess('Availability updated successfully!');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update availability.');

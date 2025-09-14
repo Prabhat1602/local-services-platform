@@ -30,8 +30,8 @@ const AdminDashboardPage = () => {
         setLoading(true);
         // Fetch stats and users at the same time
         const [statsData, usersData] = await Promise.all([
-          axios.get('http://localhost:5001/api/admin/stats', config),
-          axios.get('http://localhost:5001/api/admin/users', config)
+          axios.get('https://local-services-api.onrender.com/', config),
+          axios.get('https://local-services-api.onrender.com/', config)
         ]);
         setStats(statsData.data);
         setUsers(usersData.data);
@@ -49,7 +49,7 @@ const AdminDashboardPage = () => {
   const handleStatusUpdate = async (providerId, newStatus) => {
     try {
       setSuccess('');
-      await axios.put(`http://localhost:5001/api/admin/providers/${providerId}/status`, { status: newStatus }, config);
+      await axios.put(`https://local-services-api.onrender.com/api/admin/providers/${providerId}/status`, { status: newStatus }, config);
       setSuccess(`Provider status updated to ${newStatus}.`);
       // Update the user's status in the local state to reflect the change instantly
       setUsers(users.map(user => user._id === providerId ? { ...user, providerStatus: newStatus } : user));

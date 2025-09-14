@@ -16,7 +16,7 @@ const ChatPage = () => {
   // Fetch all conversations
   useEffect(() => {
     const fetchConversations = async () => {
-      const { data } = await axios.get('http://localhost:5001/api/chat/conversations', config);
+      const { data } = await axios.get('https://local-services-api.onrender.com/api/chat/conversations', config);
       setConversations(data);
     };
     fetchConversations();
@@ -24,7 +24,7 @@ const ChatPage = () => {
 
   // Socket connection and message listener
   useEffect(() => {
-    socketRef.current = io('http://localhost:5001');
+    socketRef.current = io('https://local-services-api.onrender.com');
     socketRef.current.on('receiveMessage', (message) => {
       // Only add the message if it belongs to the currently selected conversation
       if (message.conversationId === selectedConversation?._id) {
@@ -46,7 +46,7 @@ const ChatPage = () => {
     // Join the socket room for this conversation
     socketRef.current.emit('joinConversation', convo._id);
     // Fetch its messages
-    const { data } = await await axios.get(`http://localhost:5001/api/chat/messages/${convo._id}`, config);
+    const { data } = await await axios.get(`https://local-services-api.onrender.com/api/chat/messages/${convo._id}`, config);
     setMessages(data);
   };
 

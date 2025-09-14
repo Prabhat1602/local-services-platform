@@ -14,7 +14,7 @@ const RegisterPage = () => {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await axios.post('http://localhost:5001/api/auth/register', { name, email, password, role });
+      const { data } = await axios.post('https://local-services-api.onrender.com/api/auth/register', { name, email, password, role });
       localStorage.setItem('userInfo', JSON.stringify(data));
       // Force a page refresh to update the navbar correctly
       window.location.href = '/';

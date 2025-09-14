@@ -16,7 +16,7 @@ const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {
 
   useEffect(() => {
     const fetchServiceDetails = async () => {
-      const { data } = await axios.get(`http://localhost:5001/api/services/${booking.service._id}`);
+      const { data } = await axios.get(`https://local-services-api.onrender.com/api/services/${booking.service._id}`);
       setService(data);
     };
     fetchServiceDetails();
@@ -38,7 +38,7 @@ const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {
     setAvailableSlots(slots);
     
     const fetchBookedSlots = async () => {
-      const { data: booked } = await axios.get(`http://localhost:5001/api/bookings/booked-slots/${service._id}?date=${formatDate(selectedDate)}`);
+      const { data: booked } = await axios.get(`https://local-services-api.onrender.com/api/bookings/booked-slots/${service._id}?date=${formatDate(selectedDate)}`);
       setBookedSlots(booked);
     };
     fetchBookedSlots();
@@ -48,7 +48,7 @@ const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {
     if (window.confirm(`Reschedule for ${new Date(selectedDate).toLocaleDateString()} at ${timeSlot}?`)) {
       try {
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        await axios.put(`http://localhost:5001/api/bookings/${booking._id}/reschedule`, { bookingDate: formatDate(selectedDate), timeSlot }, config);
+        await axios.put(`https://local-services-api.onrender.com/api/bookings/${booking._id}/reschedule`, { bookingDate: formatDate(selectedDate), timeSlot }, config);
         onRescheduleSuccess();
       } catch (error) {
         alert(error.response?.data?.message || 'Failed to reschedule.');
@@ -88,7 +88,7 @@ const UserBookingsPage = () => {
   const fetchUserBookings = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.get('http://localhost:5001/api/bookings/myuserbookings', config);
+      const { data } = await axios.get('https://local-services-api.onrender.com/api/bookings/myuserbookings', config);
       setBookings(data);
     } catch (err) {
       setError('Failed to fetch your bookings.');
@@ -107,7 +107,7 @@ const UserBookingsPage = () => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        await axios.put(`http://localhost:5001/api/bookings/${bookingId}/status`, { status: 'Cancelled' }, config);
+        await axios.put(`https://local-services-api.onrender.com/api/bookings/${bookingId}/status`, { status: 'Cancelled' }, config);
         fetchUserBookings();
       } catch (err) {
         setError('Failed to cancel booking.');
@@ -119,7 +119,7 @@ const UserBookingsPage = () => {
     if (window.confirm('Are you sure you want to permanently delete this booking?')) {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        await axios.delete(`http://localhost:5001/api/bookings/${bookingId}`, config);
+        await axios.delete(`https://local-services-api.onrender.com/api/bookings/${bookingId}`, config);
         fetchUserBookings();
       } catch (err) {
         setError('Failed to delete booking.');
@@ -130,7 +130,7 @@ const UserBookingsPage = () => {
   const handlePayment = async (bookingId) => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data: session } = await axios.post('http://localhost:5001/api/payments/create-checkout-session', { bookingId }, config);
+      const { data: session } = await axios.post('https://local-services-api.onrender.com/api/payments/create-checkout-session', { bookingId }, config);
       const stripe = await stripePromise;
       await stripe.redirectToCheckout({ sessionId: session.id });
     } catch (err) {
@@ -143,7 +143,7 @@ const UserBookingsPage = () => {
     const bookingToReview = bookings.find(b => b._id === showReviewFormFor);
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.post('http://localhost:5001/api/reviews', { serviceId: bookingToReview.service._id, rating, comment }, config);
+      await axios.post('https://local-services-api.onrender.com/api/reviews', { serviceId: bookingToReview.service._id, rating, comment }, config);
       setShowReviewFormFor(null);
       fetchUserBookings();
     } catch (err) {
@@ -156,7 +156,7 @@ const UserBookingsPage = () => {
     const bookingToDispute = bookings.find(b => b._id === showDisputeFormFor);
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.put(`http://localhost:5001/api/bookings/${bookingToDispute._id}/dispute`, { reason: disputeReason }, config);
+      await axios.put(`https://local-services-api.onrender.com/api/bookings/${bookingToDispute._id}/dispute`, { reason: disputeReason }, config);
       setShowDisputeFormFor(null);
       setDisputeReason('');
       fetchUserBookings();

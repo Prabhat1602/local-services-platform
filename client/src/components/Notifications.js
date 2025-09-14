@@ -19,7 +19,7 @@ const Notifications = () => {
     // Fetch initial notifications when the component loads
     const fetchNotifications = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5001/api/notifications', config);
+        const { data } = await axios.get('https://local-services-api.onrender.com/api/notifications', config);
         setNotifications(data);
         setUnreadCount(data.filter(n => !n.read).length);
       } catch (error) {
@@ -29,7 +29,7 @@ const Notifications = () => {
     fetchNotifications();
 
     // Connect to the socket server
-    socketRef.current = io('http://localhost:5001');
+    socketRef.current = io('https://local-services-api.onrender.com/');
     // Join a personal room to receive private notifications
     socketRef.current.emit('joinConversation', userInfo._id); // Re-using joinConversation to join a personal room
 
@@ -49,7 +49,7 @@ const Notifications = () => {
     if (unreadCount > 0) {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        await axios.put('http://localhost:5001/api/notifications/read', {}, config);
+        await axios.put('https://local-services-api.onrender.com/api/notifications/read', {}, config);
         setUnreadCount(0);
       } catch (error) {
         console.error("Failed to mark notifications as read", error);

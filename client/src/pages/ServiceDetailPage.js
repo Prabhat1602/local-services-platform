@@ -22,7 +22,7 @@ const ServiceDetailPage = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const { data: serviceData } = await axios.get(`http://localhost:5001/api/services/${id}`);
+        const { data: serviceData } = await axios.get(`https://local-services-api.onrender.com/api/services/${id}`);
         setService(serviceData);
       } catch (err) {
         setError('Could not fetch service details.');
@@ -55,7 +55,7 @@ const ServiceDetailPage = () => {
     // Fetch slots that are already booked for the selected date
     const fetchBookedSlots = async () => {
         try {
-            const { data: booked } = await axios.get(`http://localhost:5001/api/bookings/booked-slots/${id}?date=${formatDate(selectedDate)}`);
+            const { data: booked } = await axios.get(`https://local-services-api.onrender.com/api/bookings/booked-slots/${id}?date=${formatDate(selectedDate)}`);
             setBookedSlots(booked);
         } catch (err) {
             console.error("Could not fetch booked slots");
@@ -72,7 +72,7 @@ const ServiceDetailPage = () => {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
 
       // Step 1: Create a 'Pending' booking
-      await axios.post('http://localhost:5001/api/bookings', {
+      await axios.post('https://local-services-api.onrender.com/api/bookings', {
         serviceId: id,
         bookingDate: formatDate(selectedDate),
         timeSlot,
@@ -107,7 +107,7 @@ const handleStartChat = async () => {
     };
 
     // Now 'config' is defined and can be used in the axios call.
-    await axios.post('http://localhost:5001/api/chat/conversations', { receiverId: service.provider._id }, config);
+    await axios.post('https://local-services-api.onrender.com/api/chat/conversations', { receiverId: service.provider._id }, config);
     navigate('/chat');
   } catch (error) {
     console.error("Failed to start conversation", error);

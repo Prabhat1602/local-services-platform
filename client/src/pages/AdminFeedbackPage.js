@@ -10,7 +10,7 @@ const AdminFeedbackPage = () => {
     const fetchFeedback = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        const { data } = await axios.get('http://localhost:5001/api/admin/feedback', config);
+        const { data } = await axios.get('https://local-services-api.onrender.com/api/admin/feedback', config);
         setFeedback(data);
       } catch (error) {
         console.error("Failed to fetch feedback", error);

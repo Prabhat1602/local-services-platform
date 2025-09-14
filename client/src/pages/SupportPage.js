@@ -16,7 +16,7 @@ const SupportPage = () => {
     setSuccess('');
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.post('http://localhost:5001/api/feedback', { type, subject, message }, config);
+      const { data } = await axios.post('https://local-services-api.onrender.com/api/feedback', { type, subject, message }, config);
       setSuccess(data.message);
       setSubject('');
       setMessage('');

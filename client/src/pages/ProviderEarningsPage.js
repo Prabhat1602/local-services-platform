@@ -12,7 +12,7 @@ const ProviderEarningsPage = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5001/api/provider/stats', config);
+        const { data } = await axios.get('https://local-services-api.onrender.com/api/provider/stats', config);
         setStats(data);
       } catch (err) {
         setError('Failed to fetch earnings data.');

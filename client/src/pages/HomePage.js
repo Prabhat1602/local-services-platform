@@ -31,7 +31,7 @@ const HomePage = () => {
       try {
         setLoading(true);
         // Build the URL with the search term
-        let url = `http://localhost:5001/api/services?search=${searchTerm}`;
+        let url = `https://local-services-api.onrender.com/api/services?search=${searchTerm}`;
         
         // If we have the user's location, add it to the URL
         if (userLocation) {
