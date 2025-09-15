@@ -30,8 +30,8 @@ const AdminDashboardPage = () => {
         setLoading(true);
         // Fetch stats and users at the same time
         const [statsData, usersData] = await Promise.all([
-          axios.get('https://local-services-api.onrender.com/', config),
-          axios.get('https://local-services-api.onrender.com/', config)
+          axios.get('https://local-services-api.onrender.com', config),
+          axios.get('https://local-services-api.onrender.com', config)
         ]);
         setStats(statsData.data);
         setUsers(usersData.data);

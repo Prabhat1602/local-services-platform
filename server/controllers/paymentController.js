@@ -37,8 +37,8 @@ exports.createCheckoutSession = async (req, res) => {
         },
       ],
       mode: 'payment',
-      success_url: `http://localhost:3000/my-bookings`, // Redirect to bookings page on success
-      cancel_url: `http://localhost:3000/my-bookings`,  // Redirect to bookings page on cancel
+      success_url: `https://local-services-platform.vercel.app/my-bookings`, // Redirect to bookings page on success
+      cancel_url: `https://local-services-platform.vercel.app/my-bookings`,  // Redirect to bookings page on cancel
       metadata: {
         bookingId: booking._id.toString(),
       }

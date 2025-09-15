@@ -29,7 +29,7 @@ const Notifications = () => {
     fetchNotifications();
 
     // Connect to the socket server
-    socketRef.current = io('https://local-services-api.onrender.com/');
+    socketRef.current = io('https://local-services-api.onrender.com');
     // Join a personal room to receive private notifications
     socketRef.current.emit('joinConversation', userInfo._id); // Re-using joinConversation to join a personal room
 
