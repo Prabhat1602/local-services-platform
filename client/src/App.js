@@ -24,8 +24,8 @@ import AdminTransactionsPage from './pages/AdminTransactionsPage';
 import SupportPage from './pages/SupportPage';
 import AdminFeedbackPage from './pages/AdminFeedbackPage';
 import Header from './components/Header';
-import AdminRoute from './components/AdminRoute';
-import AdminDashboardPage from './pages/AdminDashboardPage';
+
+;
 import AdminUserManagementPage from './pages/AdminUserManagementPage';
 function App() {
   return (
