@@ -10,7 +10,7 @@ const UserTransactionsPage = () => {
     const fetchTransactions = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        const { data } = await axios.get('https://local-services-api.onrender.com/api/users/transactions', config);
+        const { data } = await axios.get('${process.env.REACT_APP_API_URL}/users/transactions', config);
         setTransactions(data);
       } catch (error) {
         console.error("Failed to fetch transactions", error);

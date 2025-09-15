@@ -11,7 +11,7 @@ const AllBookingsPage = () => {
 
   const fetchAllBookings = async () => {
     try {
-      const { data } = await axios.get('https://local-services-api.onrender.com/api/admin/bookings', config);
+      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/admin/bookings', config);
       setBookings(data);
     } catch (err) {
       setError('Failed to fetch bookings.');
@@ -27,7 +27,7 @@ const AllBookingsPage = () => {
   const handleResolveDispute = async (bookingId) => {
     if (window.confirm('Are you sure you want to mark this dispute as resolved?')) {
         try {
-            await axios.put(`https://local-services-api.onrender.com/api/admin/bookings/${bookingId}/resolve`, {}, config);
+            await axios.put(`${process.env.REACT_APP_API_URL}/admin/bookings/${bookingId}/resolve`, {}, config);
             fetchAllBookings(); // Refresh the list
         } catch (error) {
             setError('Failed to resolve dispute.');

@@ -11,7 +11,7 @@ const AllReviewsPage = () => {
 
   const fetchAllReviews = async () => {
     try {
-      const { data } = await axios.get('https://local-services-api.onrender.com/api/admin/reviews', config);
+      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/admin/reviews', config);
       setReviews(data);
     } catch (err) {
       setError('Failed to fetch reviews.');
@@ -26,7 +26,7 @@ const AllReviewsPage = () => {
 
   const handleVisibilityToggle = async (reviewId) => {
     try {
-      await axios.put(`https://local-services-api.onrender.com/api/admin/reviews/${reviewId}/toggle-visibility`, {}, config);
+      await axios.put(`${process.env.REACT_APP_API_URL}/admin/reviews/${reviewId}/toggle-visibility`, {}, config);
       // Refresh the list to show the new status
       setReviews(reviews.map(review => 
         review._id === reviewId ? { ...review, isVisible: !review.isVisible } : review

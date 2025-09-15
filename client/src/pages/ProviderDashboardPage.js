@@ -16,7 +16,7 @@ const ProviderDashboardPage = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      const { data } = await axios.get('https://local-services-api.onrender.com/api/bookings/mybookings', config);
+      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/bookings/mybookings', config);
       setBookings(data);
     } catch (err) {
       setError('Failed to fetch bookings.');
@@ -38,7 +38,7 @@ const ProviderDashboardPage = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      await axios.put(`https://local-services-api.onrender.com/api/bookings/${bookingId}/status`, { status: newStatus }, config);
+      await axios.put(`${process.env.REACT_APP_API_URL}/bookings/${bookingId}/status`, { status: newStatus }, config);
       fetchBookings(); // Refresh the bookings list after updating
     } catch (err) {
       setError('Failed to update booking status.');
