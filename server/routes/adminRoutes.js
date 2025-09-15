@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, deleteService , updateProviderStatus,
+const { getAllUsers, updateProviderStatus,
       getAllBookings, // Import new function
   resolveDispute, // Import new function
     getAllReviews,            // Import new function
@@ -8,8 +8,7 @@ const { getAllUsers, deleteService , updateProviderStatus,
    getStats,
     getAllTransactions, 
      getAdminStats,
-  updateProviderStatus,
-  deleteUser // New function
+deleteUser // New function
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/adminMiddleware');
