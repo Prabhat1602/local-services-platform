@@ -72,7 +72,7 @@ const ServiceDetailPage = () => {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
 
       // Step 1: Create a 'Pending' booking
-      await axios.post('${process.env.REACT_APP_API_URL}/bookings', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/bookings`, {
         serviceId: id,
         bookingDate: formatDate(selectedDate),
         timeSlot,
@@ -107,7 +107,7 @@ const handleStartChat = async () => {
     };
 
     // Now 'config' is defined and can be used in the axios call.
-    await axios.post('${process.env.REACT_APP_API_URL}/chat/conversations', { receiverId: service.provider._id }, config);
+    await axios.post(`${process.env.REACT_APP_API_URL}/chat/conversations`, { receiverId: service.provider._id }, config);
     navigate('/chat');
   } catch (error) {
     console.error("Failed to start conversation", error);

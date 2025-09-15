@@ -88,7 +88,7 @@ const UserBookingsPage = () => {
   const fetchUserBookings = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/bookings/myuserbookings', config);
+      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/bookings/myuserbookings`, config);
       setBookings(data);
     } catch (err) {
       setError('Failed to fetch your bookings.');
@@ -130,7 +130,7 @@ const UserBookingsPage = () => {
   const handlePayment = async (bookingId) => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data: session } = await axios.post('${process.env.REACT_APP_API_URL}/payments/create-checkout-session', { bookingId }, config);
+      const { data: session } = await axios.post(`${process.env.REACT_APP_API_URL}/payments/create-checkout-session`, { bookingId }, config);
       const stripe = await stripePromise;
       await stripe.redirectToCheckout({ sessionId: session.id });
     } catch (err) {
@@ -143,7 +143,7 @@ const UserBookingsPage = () => {
     const bookingToReview = bookings.find(b => b._id === showReviewFormFor);
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.post('${process.env.REACT_APP_API_URL}/reviews', { serviceId: bookingToReview.service._id, rating, comment }, config);
+      await axios.post(`${process.env.REACT_APP_API_URL}/reviews`, { serviceId: bookingToReview.service._id, rating, comment }, config);
       setShowReviewFormFor(null);
       fetchUserBookings();
     } catch (err) {
