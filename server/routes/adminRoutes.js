@@ -1,32 +1,23 @@
+// server/routes/adminRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, updateProviderStatus,
-      getAllBookings, // Import new function
-  resolveDispute, // Import new function
-    getAllReviews,            // Import new function
-  toggleReviewVisibility,
-   getStats,
-    getAllTransactions, 
-     getAdminStats,
-deleteUser // New function
-} = require('../controllers/adminController');
-const { protect } = require('../middleware/authMiddleware');
-const { admin } = require('../middleware/adminMiddleware');
-const { getAllFeedback } = require('../controllers/feedbackController');
-router.route('/users').get(protect, admin, getAllUsers);
-router.route('/services/:id').delete(protect, admin, deleteService);
-router.route('/providers/:id/status').put(protect, admin, updateProviderStatus);
-router.route('/bookings').get(protect, admin, getAllBookings);
-router.route('/bookings/:id/resolve').put(protect, admin, resolveDispute);
-// Add routes for moderating reviews
-router.route('/reviews').get(protect, admin, getAllReviews);
-router.route('/reviews/:id/toggle-visibility').put(protect, admin, toggleReviewVisibility);
-router.route('/stats').get(protect, admin, getStats);
-router.route('/transactions').get(protect, admin, getAllTransactions);
-router.route('/feedback').get(protect, admin, getAllFeedback);
-router.route('/stats').get(protect, admin, getAdminStats);
+const adminController = require('../controllers/adminController'); // Import the whole module
+const { protect, admin } = require('../middleware/authMiddleware');
 
+// Protect all admin routes with 'protect' (logged in) and 'admin' (admin role) middleware
+router.route('/stats').get(protect, admin, adminController.getAdminStats);
+router.route('/users').get(protect, admin, adminController.getAllUsers);
+router.route('/users/:id/status').put(protect, admin, adminController.updateProviderStatus);
+router.route('/users/:id').delete(protect, admin, adminController.deleteUser);
 
-router.route('/users/:id').delete(protect, admin, deleteUser); // New route for deleting user
+// Add routes for other admin functions
+router.route('/bookings').get(protect, admin, adminController.getAllBookings);
+router.route('/bookings/:id/resolve').put(protect, admin, adminController.resolveDispute);
+router.route('/reviews').get(protect, admin, adminController.getAllReviews);
+router.route('/reviews/:id/toggle-visibility').put(protect, admin, adminController.toggleReviewVisibility);
+router.route('/transactions').get(protect, admin, adminController.getAllTransactions);
+
+// You might have a separate route for deleting services if needed
+// router.route('/services/:id').delete(protect, admin, adminController.deleteService);
 
 module.exports = router;

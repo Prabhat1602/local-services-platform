@@ -1,144 +1,33 @@
+// server/controllers/adminController.js
 const User = require('../models/User');
 const Service = require('../models/Service');
 const Booking = require('../models/Booking');
 const Review = require('../models/Review');
-const Transaction = require('../models/Transaction');
-// @desc    Get all users
+const Transaction = require('../models/Transaction'); // Ensure Transaction model is defined and imported
+
+// @desc    Get all users (excluding password)
 // @route   GET /api/admin/users
+// @access  Private/Admin
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({}).select('-password');
     res.json(users);
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Error in getAllUsers:', error);
+    res.status(500).json({ message: 'Server Error: Failed to fetch all users' });
   }
 };
 
-// @desc    Delete a service
-// @route   DELETE /api/admin/services/:id
-
-// ... (imports and existing functions)
-
-exports.getAllBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find({})
-      .populate('user', 'name email')
-      .populate('provider', 'name email')
-      .populate('service', 'title')
-      .sort({ createdAt: -1 });
-    res.json(bookings);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
-// @desc    Resolve a disputed booking
-// @route   PUT /api/admin/bookings/:id/resolve
-exports.resolveDispute = async (req, res) => {
-    try {
-        const booking = await Booking.findById(req.params.id);
-
-        if (booking) {
-            booking.isDisputed = false;
-            // Optionally, the admin can force a status change, e.g., to 'Completed' or 'Cancelled'
-            // booking.status = 'Completed'; 
-            await booking.save();
-            res.json({ message: 'Dispute resolved.' });
-        } else {
-            res.status(404).json({ message: 'Booking not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
-    }
-};
-
-
-// @desc    Get all reviews on the platform
-// @route   GET /api/admin/reviews
-exports.getAllReviews = async (req, res) => {
-  try {
-    const reviews = await Review.find({})
-      .populate('user', 'name')
-      .populate('service', 'title')
-      .sort({ createdAt: -1 });
-    res.json(reviews);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
-
-// @desc    Toggle a review's visibility
-// @route   PUT /api/admin/reviews/:id/toggle-visibility
-exports.toggleReviewVisibility = async (req, res) => {
-  try {
-    const review = await Review.findById(req.params.id);
-    if (review) {
-      review.isVisible = !review.isVisible; // Flip the boolean value
-      await review.save();
-      res.json({ message: `Review visibility set to ${review.isVisible}` });
-    } else {
-      res.status(404).json({ message: 'Review not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
-// /server/controllers/adminController.js
-
-// ... (keep all other imports and functions)
-
-// @desc    Get platform statistics for reports
-// @route   GET /api/admin/stats
-exports.getStats = async (req, res) => {
-  try {
-    const totalUsers = await User.countDocuments();
-    const totalServices = await Service.countDocuments();
-    const totalBookings = await Booking.countDocuments();
-    
-    // --- THIS IS THE FIX ---
-    // We calculate revenue from bookings that are marked as paid.
-    const totalRevenue = await Booking.aggregate([
-      { $match: { isPaid: true } }, // Change from status: 'Completed' to isPaid: true
-      { $lookup: { from: 'services', localField: 'service', foreignField: '_id', as: 'serviceDetails' } },
-      { $unwind: '$serviceDetails' },
-      { $group: { _id: null, total: { $sum: '$serviceDetails.price' } } }
-    ]);
-    // --- END FIX ---
-
-    const averageRating = await Review.aggregate([
-        { $group: { _id: null, avg: { $avg: '$rating' } } }
-    ]);
-
-    res.json({
-      totalUsers,
-      totalServices,
-      totalBookings,
-      totalRevenue: totalRevenue[0]?.total || 0,
-      averageRating: averageRating[0]?.avg.toFixed(2) || 0,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error: ' + error.message });
-  }
-};
-exports.getAllTransactions = async (req, res) => {
-  try {
-    const transactions = await Transaction.find({})
-      .populate('user', 'name')
-      .populate('provider', 'name')
-      .sort({ createdAt: -1 });
-    res.json(transactions);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
-// @desc    Get admin dashboard statistics
+// @desc    Get platform statistics for admin dashboard
 // @route   GET /api/admin/stats
 // @access  Private/Admin
-const getAdminStats = async (req, res) => {
+exports.getAdminStats = async (req, res) => { // Renamed to getAdminStats and using exports
   try {
     const totalUsers = await User.countDocuments();
     const totalServices = await Service.countDocuments();
     const totalBookings = await Booking.countDocuments();
 
+    // Calculate total revenue from completed and paid bookings
     const pipeline = [
       { $match: { status: 'Completed', isPaid: true } }, // Match completed and paid bookings
       { $lookup: {
@@ -181,7 +70,7 @@ const getAdminStats = async (req, res) => {
 // @desc    Update provider status (Approved/Rejected)
 // @route   PUT /api/admin/users/:id/status
 // @access  Private/Admin
-const updateProviderStatus = async (req, res) => {
+exports.updateProviderStatus = async (req, res) => { // Using exports
     try {
         const { id } = req.params;
         const { status } = req.body; // Expects 'Approved' or 'Rejected'
@@ -214,7 +103,7 @@ const updateProviderStatus = async (req, res) => {
 // @desc    Delete a user
 // @route   DELETE /api/admin/users/:id
 // @access  Private/Admin
-const deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res) => { // Using exports
     try {
         const user = await User.findById(req.params.id);
 
@@ -237,9 +126,98 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = {
-  getAdminStats,
-  
-  updateProviderStatus,
-  deleteUser
+
+// @desc    Get all bookings
+// @route   GET /api/admin/bookings
+// @access  Private/Admin
+exports.getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({})
+      .populate('user', 'name email')
+      .populate('provider', 'name email')
+      .populate('service', 'title')
+      .sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error in getAllBookings:', error);
+    res.status(500).json({ message: 'Server Error: Failed to fetch bookings' });
+  }
 };
+
+// @desc    Resolve a disputed booking
+// @route   PUT /api/admin/bookings/:id/resolve
+// @access  Private/Admin
+exports.resolveDispute = async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+
+        if (booking) {
+            booking.isDisputed = false;
+            // Optionally, the admin can force a status change, e.g., to 'Completed' or 'Cancelled'
+            // booking.status = 'Completed';
+            await booking.save();
+            res.json({ message: 'Dispute resolved.' });
+        } else {
+            res.status(404).json({ message: 'Booking not found' });
+        }
+    } catch (error) {
+        console.error('Error in resolveDispute:', error);
+        res.status(500).json({ message: 'Server Error: Failed to resolve dispute' });
+    }
+};
+
+
+// @desc    Get all reviews on the platform
+// @route   GET /api/admin/reviews
+// @access  Private/Admin
+exports.getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({})
+      .populate('user', 'name')
+      .populate('service', 'title')
+      .sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (error) {
+    console.error('Error in getAllReviews:', error);
+    res.status(500).json({ message: 'Server Error: Failed to fetch reviews' });
+  }
+};
+
+// @desc    Toggle a review's visibility
+// @route   PUT /api/admin/reviews/:id/toggle-visibility
+// @access  Private/Admin
+exports.toggleReviewVisibility = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (review) {
+      review.isVisible = !review.isVisible; // Flip the boolean value
+      await review.save();
+      res.json({ message: `Review visibility set to ${review.isVisible}` });
+    } else {
+      res.status(404).json({ message: 'Review not found' });
+    }
+  } catch (error) {
+    console.error('Error in toggleReviewVisibility:', error);
+    res.status(500).json({ message: 'Server Error: Failed to toggle review visibility' });
+  }
+};
+
+
+// @desc    Get all transactions
+// @route   GET /api/admin/transactions
+// @access  Private/Admin
+exports.getAllTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find({})
+      .populate('user', 'name')
+      .populate('provider', 'name')
+      .sort({ createdAt: -1 });
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error in getAllTransactions:', error);
+    res.status(500).json({ message: 'Server Error: Failed to fetch transactions' });
+  }
+};
+
+// Removed `module.exports = { ... }` because we are using `exports.functionName` for each function.
+// This makes all declared `exports.functionName` directly available for import.
