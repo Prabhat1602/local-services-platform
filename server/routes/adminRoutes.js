@@ -8,8 +8,7 @@ const adminController = require('../controllers/adminController');
 // 2. Import auth middleware (assuming 'admin' is part of authMiddleware.js)
 const { protect, admin } = require('../middleware/authMiddleware');
 
-// If you have a separate feedback controller, import it here:
-// const feedbackController = require('../controllers/feedbackController');
+
 
 
 // Protect ALL admin routes with 'protect' (logged in) and 'admin' (admin role) middleware
