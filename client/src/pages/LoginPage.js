@@ -12,7 +12,7 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await axios.post('${process.env.REACT_APP_API_URL}/auth/login', { email, password });
+      const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, { email, password });
       localStorage.setItem('userInfo', JSON.stringify(data));
       // Force a page refresh to update the navbar correctly
       window.location.href = '/';

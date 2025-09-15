@@ -10,7 +10,7 @@ const AdminFeedbackPage = () => {
     const fetchFeedback = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        const { data } = await axios.get('${process.env.REACT_APP_API_URL}/admin/feedback', config);
+        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/admin/feedback`, config);
         setFeedback(data);
       } catch (error) {
         console.error("Failed to fetch feedback", error);

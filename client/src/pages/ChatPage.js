@@ -16,7 +16,7 @@ const ChatPage = () => {
   // Fetch all conversations
   useEffect(() => {
     const fetchConversations = async () => {
-      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/chat/conversations', config);
+      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/chat/conversations`, config);
       setConversations(data);
     };
     fetchConversations();
@@ -24,7 +24,7 @@ const ChatPage = () => {
 
   // Socket connection and message listener
   useEffect(() => {
-    socketRef.current = io('${process.env.REACT_APP_API_URL}');
+    socketRef.current = io(`${process.env.REACT_APP_API_URL}`);
     socketRef.current.on('receiveMessage', (message) => {
       // Only add the message if it belongs to the currently selected conversation
       if (message.conversationId === selectedConversation?._id) {

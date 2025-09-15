@@ -45,7 +45,7 @@ const ProfilePage = () => {
         if (location) {
             updateData.location = location;
         }
-        await axios.put('${process.env.REACT_APP_API_URL}/users/profile', updateData, config);
+        await axios.put(`${process.env.REACT_APP_API_URL}/users/profile`, updateData, config);
         setMessage('Profile updated successfully!');
     } catch (error) {
         setMessage('Failed to update profile.');

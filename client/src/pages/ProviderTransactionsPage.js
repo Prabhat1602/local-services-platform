@@ -12,7 +12,7 @@ const ProviderTransactionsPage = () => {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
         // Fetching from the provider's endpoint
-        const { data } = await axios.get('${process.env.REACT_APP_API_URL}/provider/transactions', config);
+        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/provider/transactions`, config);
         setTransactions(data);
       } catch (err) {
         setError("Failed to fetch transaction history.");

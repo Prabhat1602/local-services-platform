@@ -12,7 +12,7 @@ const ProviderEarningsPage = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data } = await axios.get('${process.env.REACT_APP_API_URL}/provider/stats', config);
+        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/provider/stats`, config);
         setStats(data);
       } catch (err) {
         setError('Failed to fetch earnings data.');

@@ -11,7 +11,7 @@ const AllReviewsPage = () => {
 
   const fetchAllReviews = async () => {
     try {
-      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/admin/reviews', config);
+      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/admin/reviews`, config);
       setReviews(data);
     } catch (err) {
       setError('Failed to fetch reviews.');

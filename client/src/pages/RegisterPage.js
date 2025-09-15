@@ -14,7 +14,10 @@ const RegisterPage = () => {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await axios.post('${process.env.REACT_APP_API_URL}/auth/register', { name, email, password, role });
+// Correct - uses backticks
+// Incorrect - uses single quotes
+
+const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/auth/register`, { name, email, password, role });
       localStorage.setItem('userInfo', JSON.stringify(data));
       // Force a page refresh to update the navbar correctly
       window.location.href = '/';

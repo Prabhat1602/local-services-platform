@@ -11,7 +11,7 @@ const AllBookingsPage = () => {
 
   const fetchAllBookings = async () => {
     try {
-      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/admin/bookings', config);
+      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/admin/bookings`, config);
       setBookings(data);
     } catch (err) {
       setError('Failed to fetch bookings.');

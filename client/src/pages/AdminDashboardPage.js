@@ -30,8 +30,8 @@ const AdminDashboardPage = () => {
         setLoading(true);
         // Fetch stats and users at the same time
         const [statsData, usersData] = await Promise.all([
-          axios.get('${process.env.REACT_APP_API_URL}', config),
-          axios.get('${process.env.REACT_APP_API_URL}', config)
+          axios.get(`${process.env.REACT_APP_API_URL}`, config),
+          axios.get(`${process.env.REACT_APP_API_URL}`, config)
         ]);
         setStats(statsData.data);
         setUsers(usersData.data);

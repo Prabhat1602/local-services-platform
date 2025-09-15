@@ -16,7 +16,7 @@ const ProviderDashboardPage = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/bookings/mybookings', config);
+      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/bookings/mybookings`, config);
       setBookings(data);
     } catch (err) {
       setError('Failed to fetch bookings.');

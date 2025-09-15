@@ -17,7 +17,7 @@ const ProviderAvailabilityPage = () => {
   useEffect(() => {
     const fetchMyServices = async () => {
       try {
-        const { data } = await axios.get('${process.env.REACT_APP_API_URL}/services/myservices', config);
+        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/services/myservices`, config);
         setMyServices(data);
         if (data.length > 0) {
           // Pre-select the first service
