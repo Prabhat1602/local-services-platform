@@ -165,3 +165,128 @@ exports.getAllTransactions = async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 };
+// @desc    Get admin dashboard statistics
+// @route   GET /api/admin/stats
+// @access  Private/Admin
+const getAdminStats = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalServices = await Service.countDocuments();
+    const totalBookings = await Booking.countDocuments();
+
+    const pipeline = [
+      { $match: { status: 'Completed', isPaid: true } }, // Match completed and paid bookings
+      { $lookup: {
+          from: 'services', // The name of the collection for services (must match your model's collection name)
+          localField: 'service', // Field in Booking model
+          foreignField: '_id',   // Field in Service model
+          as: 'serviceDetails'
+      }},
+      { $unwind: '$serviceDetails' }, // Deconstructs the serviceDetails array field from the input documents to output a document for each element.
+      { $group: {
+          _id: null, // Group all documents into one
+          totalRevenue: { $sum: '$serviceDetails.price' } // Sum the price from serviceDetails
+      }}
+    ];
+    const revenueResult = await Booking.aggregate(pipeline);
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+    const reviewStats = await Review.aggregate([
+      { $group: {
+          _id: null,
+          averageRating: { $avg: '$rating' }
+      }}
+    ]);
+    const averageRating = reviewStats.length > 0 ? reviewStats[0].averageRating.toFixed(1) : 0;
+
+    res.json({
+      totalUsers,
+      totalServices,
+      totalBookings,
+      totalRevenue,
+      averageRating,
+    });
+  } catch (error) {
+    console.error('Error in getAdminStats:', error);
+    res.status(500).json({ message: 'Server Error: Failed to fetch admin statistics' });
+  }
+};
+
+// @desc    Get all users (excluding password)
+// @route   GET /api/admin/users
+// @access  Private/Admin
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password'); // Selects all users and excludes their password hash
+    res.json(users);
+  } catch (error) {
+    console.error('Error in getAllUsers:', error);
+    res.status(500).json({ message: 'Server Error: Failed to fetch all users' });
+  }
+};
+
+// @desc    Update provider status (Approved/Rejected)
+// @route   PUT /api/admin/users/:id/status
+// @access  Private/Admin
+const updateProviderStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body; // Expects 'Approved' or 'Rejected'
+
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.role !== 'provider') {
+            return res.status(400).json({ message: 'User is not a provider' });
+        }
+
+        if (!['Pending', 'Approved', 'Rejected'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid provider status provided.' });
+        }
+
+        user.providerStatus = status;
+        await user.save();
+
+        res.json({ message: `Provider ${user.name} status updated to ${status}` });
+
+    } catch (error) {
+        console.error('Error in updateProviderStatus:', error);
+        res.status(500).json({ message: 'Server Error: Failed to update provider status' });
+    }
+};
+
+// @desc    Delete a user
+// @route   DELETE /api/admin/users/:id
+// @access  Private/Admin
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prevent admin from deleting themselves or other admins accidentally
+        if (user.role === 'admin') {
+            return res.status(403).json({ message: 'Cannot delete an admin user.' });
+        }
+
+        await user.deleteOne(); // Use deleteOne() or remove() depending on Mongoose version
+
+        res.json({ message: 'User removed' });
+
+    } catch (error) {
+        console.error('Error in deleteUser:', error);
+        res.status(500).json({ message: 'Server Error: Failed to delete user' });
+    }
+};
+
+module.exports = {
+  getAdminStats,
+  getAllUsers,
+  updateProviderStatus,
+  deleteUser
+};

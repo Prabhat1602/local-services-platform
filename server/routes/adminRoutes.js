@@ -7,6 +7,10 @@ const { getAllUsers, deleteService , updateProviderStatus,
   toggleReviewVisibility,
    getStats,
     getAllTransactions, 
+     getAdminStats,
+  getAllUsers,
+  updateProviderStatus,
+  deleteUser // New function
 } = require('../controllers/adminController');
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/adminMiddleware');
@@ -22,4 +26,9 @@ router.route('/reviews/:id/toggle-visibility').put(protect, admin, toggleReviewV
 router.route('/stats').get(protect, admin, getStats);
 router.route('/transactions').get(protect, admin, getAllTransactions);
 router.route('/feedback').get(protect, admin, getAllFeedback);
+router.route('/stats').get(protect, admin, getAdminStats);
+router.route('/users').get(protect, admin, getAllUsers);
+router.route('/users/:id/status').put(protect, admin, updateProviderStatus);
+router.route('/users/:id').delete(protect, admin, deleteUser); // New route for deleting user
+
 module.exports = router;

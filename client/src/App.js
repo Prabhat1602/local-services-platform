@@ -23,6 +23,10 @@ import ProviderTransactionsPage from './pages/ProviderTransactionsPage';
 import AdminTransactionsPage from './pages/AdminTransactionsPage';
 import SupportPage from './pages/SupportPage';
 import AdminFeedbackPage from './pages/AdminFeedbackPage';
+import Header from './components/Header';
+import AdminRoute from './components/AdminRoute';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminUserManagementPage from './pages/AdminUserManagementPage';
 function App() {
   return (
     <>
@@ -53,6 +57,12 @@ function App() {
                 <Route path="/admin/reviews" element={<AllReviewsPage />} />
                 <Route path="/admin/transactions" element={<AdminTransactionsPage />} />
                 <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
+                      <Route path="/admin" element={<AdminRoute />}>
+            <Route index element={<AdminDashboardPage />} /> {/* Renders Dashboard at /admin */}
+            <Route path="dashboard" element={<AdminDashboardPage />} /> {/* Explicit route for /admin/dashboard */}
+            <Route path="users" element={<AdminUserManagementPage />} /> {/* /admin/users */}
+            {/* <Route path="services" element={<AdminServiceManagementPage />} /> */}
+            </Route>
             </Route>
           </Route>
         </Routes>
