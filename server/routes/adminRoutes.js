@@ -11,9 +11,6 @@ const { protect, admin } = require('../middleware/authMiddleware');
 
 
 
-// Protect ALL admin routes with 'protect' (logged in) and 'admin' (admin role) middleware
-// Use adminController.functionName for clarity and consistency
-
 router.route('/stats').get(protect, admin, adminController.getAdminStats); // This handles dashboard stats
 router.route('/users').get(protect, admin, adminController.getAllUsers);
 router.route('/users/:id/status').put(protect, admin, adminController.updateProviderStatus);
