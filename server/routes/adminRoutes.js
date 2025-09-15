@@ -27,7 +27,7 @@ router.route('/transactions').get(protect, admin, getAllTransactions);
 router.route('/feedback').get(protect, admin, getAllFeedback);
 router.route('/stats').get(protect, admin, getAdminStats);
 
-router.route('/users/:id/status').put(protect, admin, updateProviderStatus);
+
 router.route('/users/:id').delete(protect, admin, deleteUser); // New route for deleting user
 
 module.exports = router;
