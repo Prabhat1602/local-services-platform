@@ -31,29 +31,6 @@ exports.deleteService = async (req, res) => {
 };
 // ... (imports and existing functions)
 
-// @desc    Update a provider's status (approve/reject)
-// @route   PUT /api/admin/providers/:id/status
-exports.updateProviderStatus = async (req, res) => {
-  const { status } = req.body; // Expecting 'Approved' or 'Rejected'
-
-  if (!['Approved', 'Rejected'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
-  }
-
-  try {
-    const provider = await User.findById(req.params.id);
-    if (provider && provider.role === 'provider') {
-      provider.providerStatus = status;
-      await provider.save();
-      // Here you could also create a notification for the provider
-      res.json({ message: `Provider has been ${status}.` });
-    } else {
-      res.status(404).json({ message: 'Provider not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
 exports.getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({})
@@ -212,18 +189,6 @@ const getAdminStats = async (req, res) => {
   }
 };
 
-// @desc    Get all users (excluding password)
-// @route   GET /api/admin/users
-// @access  Private/Admin
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find({}).select('-password'); // Selects all users and excludes their password hash
-    res.json(users);
-  } catch (error) {
-    console.error('Error in getAllUsers:', error);
-    res.status(500).json({ message: 'Server Error: Failed to fetch all users' });
-  }
-};
 
 // @desc    Update provider status (Approved/Rejected)
 // @route   PUT /api/admin/users/:id/status
@@ -286,7 +251,7 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
   getAdminStats,
-  getAllUsers,
+  
   updateProviderStatus,
   deleteUser
 };
