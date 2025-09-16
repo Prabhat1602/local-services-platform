@@ -58,13 +58,12 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/users', userRoutes);
 
-// Initialize Socket.IO Server
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  },
-});
+const io = require('socket.io')(server, {
+    cors: {
+        origin: process.env.CLIENT_URL, // Your frontend URL
+        methods: ["GET", "POST"]
+    }
+})
 
 // Socket.IO Connection Logic
 io.on('connection', (socket) => {
@@ -73,7 +72,7 @@ io.on('connection', (socket) => {
   const createAndEmitNotification = async (userId, message, link) => {
     // ... notification logic ...
   };
-
+ console.log('Socket.IO server initialized.'); // Add this log
   socket.on('joinConversation', (conversationId) => {
     socket.join(conversationId);
   });
