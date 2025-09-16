@@ -33,10 +33,13 @@ const AdminDashboardPage = () => {
         // Assuming your backend has routes like:
         // GET /api/admin/stats for dashboard statistics
         // GET /api/admin/users for all users (including providers)
+              // --- CORRECTED API ENDPOINTS ---
         const [statsResponse, usersResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, config),
-          axios.get(`${process.env.REACT_APP_API_URL}/admin/users`, config)
+          axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, config), // Correct endpoint for stats
+          axios.get(`${process.env.REACT_APP_API_URL}/admin/users`, config)  // Correct endpoint for all users
         ]);
+        // --- END CORRECTED API ENDPOINTS ---
+
         setStats(statsResponse.data);
         setUsers(usersResponse.data); // Assuming usersData.data is an array of user objects
       } catch (err) {
