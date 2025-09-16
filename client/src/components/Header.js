@@ -1,7 +1,6 @@
 // client/src/components/Header.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { logout } from '../actions/userActions'; // Adjust if using context/useState for user state
 
 const Header = () => {
   const navigate = useNavigate();
@@ -9,12 +8,11 @@ const Header = () => {
   // Get user info directly from localStorage
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
-  const logoutHandler = () => {
-    localStorage.removeItem('userInfo'); // Remove user info from localStorage
-    navigate('/login'); // Redirect to login page
-    window.location.reload(); // Optional: force a page reload to clear all state
+const handleLogout = () => {
+    localStorage.removeItem('userInfo');
+    navigate('/login');
+    window.location.reload();
   };
-
   return (
     <header>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -45,9 +43,7 @@ const Header = () => {
                 <li className="nav-item">
                   <Link className="nav-link" to="/profile">Profile</Link>
                 </li>
-                <li className="nav-item">
-                  <button onClick={handleLogout} className="nav-link btn btn-link">Logout</button>
-                </li>
+               
               </>
             ) : (
               <>
