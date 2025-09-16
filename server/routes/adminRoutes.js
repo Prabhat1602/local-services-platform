@@ -2,16 +2,24 @@
 const express = require('express');
 const router = express.Router();
 
-// 1. Import the entire adminController module
 const adminController = require('../controllers/adminController');
-
-// 2. Import auth middleware (assuming 'admin' is part of authMiddleware.js)
 const { protect, admin } = require('../middleware/authMiddleware');
 
+// Add these LOGS to debug what's being imported
+console.log('--- Debugging adminRoutes.js ---');
+console.log('adminController:', adminController);
+console.log('adminController.getAdminStats:', adminController.getAdminStats);
+console.log('--- End Debugging adminRoutes.js ---');
 
 
+// If you have a separate feedback controller, import it here:
+// const feedbackController = require('../controllers/feedbackController');
 
-router.route('/stats').get(protect, admin, adminController.getAdminStats); // This handles dashboard stats
+
+// Protect ALL admin routes with 'protect' (logged in) and 'admin' (admin role) middleware
+// Use adminController.functionName for clarity and consistency
+
+router.route('/stats').get(protect, admin, adminController.getAdminStats); // This is the error line (approx 14)
 router.route('/users').get(protect, admin, adminController.getAllUsers);
 router.route('/users/:id/status').put(protect, admin, adminController.updateProviderStatus);
 router.route('/users/:id').delete(protect, admin, adminController.deleteUser); // For deleting users

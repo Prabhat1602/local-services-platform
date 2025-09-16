@@ -4,7 +4,7 @@ const Service = require('../models/Service');
 const Booking = require('../models/Booking');
 const Review = require('../models/Review');
 const Transaction = require('../models/Transaction'); // Ensure Transaction model is defined and imported
-
+console.log('--- adminController.js Loaded ---'); 
 
 // @route   GET /api/admin/users
 // @access  Private/Admin
