@@ -8,11 +8,12 @@ const Header = () => {
   // Get user info directly from localStorage
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
-const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem('userInfo');
     navigate('/login');
     window.location.reload();
   };
+
   return (
     <header>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -32,9 +33,9 @@ const handleLogout = () => {
                     <div className="dropdown-menu" aria-labelledby="adminDropdown">
                       <Link className="dropdown-item" to="/admin/dashboard">Dashboard</Link>
                       <Link className="dropdown-item" to="/admin/users">User Management</Link>
-                      <Link className="dropdown-item" to="/admin/reviews">Review Management</Link> {/* NEW */}
-                      <Link className="dropdown-item" to="/admin/transactions">Transaction Management</Link> {/* NEW */}
-                      {/* <Link className="dropdown-item" to="/admin/feedback">Feedback Management</Link> */} {/* Uncomment if you create this page */}
+                      <Link className="dropdown-item" to="/admin/reviews">Review Management</Link>
+                      <Link className="dropdown-item" to="/admin/transactions">Transaction Management</Link>
+                      {/* <Link className="dropdown-item" to="/admin/feedback">Feedback Management</Link> */}
                     </div>
                   </li>
                 )}
@@ -43,7 +44,11 @@ const handleLogout = () => {
                 <li className="nav-item">
                   <Link className="nav-link" to="/profile">Profile</Link>
                 </li>
-               
+                {/* --- ADDED LOGOUT BUTTON HERE --- */}
+                <li className="nav-item">
+                  <button onClick={handleLogout} className="nav-link btn btn-link">Logout</button>
+                </li>
+                {/* --- END ADDED LOGOUT BUTTON --- */}
               </>
             ) : (
               <>
@@ -61,4 +66,5 @@ const handleLogout = () => {
     </header>
   );
 };
+
 export default Header;
