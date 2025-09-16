@@ -33,11 +33,14 @@ const provider = (req, res, next) => {
     res.status(401).json({ message: 'Not authorized as a provider' });
   }
 };
-const admin = (req, res, next) => {
+
+const admin = (req, res, next) => { // This function is defined
     if (req.user && req.user.role === 'admin') {
         next();
     } else {
         res.status(401).json({ message: 'Not authorized as an admin' });
     }
 };
-module.exports = { protect, provider };
+
+// --- THIS IS THE CRITICAL FIX ---
+module.exports = { protect, provider, admin }; // <<< Add 'admin' here

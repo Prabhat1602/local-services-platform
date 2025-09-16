@@ -6,14 +6,6 @@ const adminController = require('../controllers/adminController');
 // Check this import carefully:
 const { protect, admin } = require('../middleware/authMiddleware'); // <<< THIS LINE
 
-// Add these LOGS to debug what's being imported
-console.log('--- Debugging adminRoutes.js (More Detailed) ---');
-console.log('adminController:', adminController);
-console.log('adminController.getAdminStats:', adminController.getAdminStats);
-console.log('protect middleware:', protect); // <<< NEW LOG
-console.log('admin middleware:', admin);   // <<< NEW LOG
-console.log('--- End Debugging adminRoutes.js ---');
-
 
 // If you have a separate feedback controller, import it here:
 // const feedbackController = require('../controllers/feedbackController');
