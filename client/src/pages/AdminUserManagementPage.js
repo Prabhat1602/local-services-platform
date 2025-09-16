@@ -1,4 +1,4 @@
-// client/src/pages/AdminUserManagementPage.js
+// client/src/pages/AdminUserManagementPage.js (Updated with correct API call)
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -8,35 +8,34 @@ const AdminUserManagementPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Get user info directly from localStorage
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-
   const token = userInfo?.token;
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
-  // Fetch all users on component mount
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
+        setError(''); // Clear previous errors
         const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/admin/users`, config);
         setUsers(data);
-        setError(''); // Clear previous errors
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch users.');
+        console.error("Frontend User Management Fetch Error:", err);
+        setError(err.response?.data?.message || 'Failed to fetch users. Check console for details.');
       } finally {
         setLoading(false);
       }
     };
 
-    if (token && userInfo?.role === 'admin') { // Check role here
+    if (token && userInfo?.role === 'admin') {
       fetchUsers();
     } else {
       setLoading(false);
       setError("Unauthorized: Admin access required or not logged in.");
     }
-  }, [token, userInfo?.role]); // Re-run if token or role changes
+  }, [token, userInfo?.role]);
 
+  // ... (handleProviderStatusUpdate and handleDeleteUser functions remain the same)
   const handleProviderStatusUpdate = async (providerId, newStatus) => {
     if (!window.confirm(`Are you sure you want to ${newStatus} this provider?`)) {
       return;
@@ -51,6 +50,7 @@ const AdminUserManagementPage = () => {
         )
       );
     } catch (err) {
+      console.error("Frontend Provider Status Update Error:", err);
       setError(err.response?.data?.message || 'Failed to update provider status.');
     }
   };
@@ -65,6 +65,7 @@ const AdminUserManagementPage = () => {
       setSuccess(`User deleted successfully.`);
       setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
     } catch (err) {
+      console.error("Frontend Delete User Error:", err);
       setError(err.response?.data?.message || 'Failed to delete user.');
     }
   };
@@ -73,7 +74,7 @@ const AdminUserManagementPage = () => {
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   const pendingProviders = users.filter(user => user.role === 'provider' && user.providerStatus === 'Pending');
-  const allUsersAndProviders = users.filter(user => user.role !== 'admin'); // Don't list admin users for management by default
+  const allUsersAndProviders = users.filter(user => user.role !== 'admin');
 
   return (
     <div className="admin-user-management-container">
@@ -132,7 +133,7 @@ const AdminUserManagementPage = () => {
                   <td>{user.role}</td>
                   <td>{user.role === 'provider' ? user.providerStatus : 'N/A'}</td>
                   <td>
-                    {user.role !== 'admin' && ( // Only show delete for non-admin users
+                    {user.role !== 'admin' && (
                         <button onClick={() => handleDeleteUser(user._id)} className="btn btn-danger">Delete</button>
                     )}
                   </td>

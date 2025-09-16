@@ -23,6 +23,7 @@ import ProviderTransactionsPage from './pages/ProviderTransactionsPage';
 import AdminTransactionsPage from './pages/AdminTransactionsPage';
 import SupportPage from './pages/SupportPage';
 import AdminFeedbackPage from './pages/AdminFeedbackPage';
+import AdminReviewsPage from './pages/AdminReviewsPage';
 import Header from './components/Header';
 
 ;
@@ -52,13 +53,13 @@ function App() {
               <Route path="/transactions" element={<UserTransactionsPage />} />
                <Route path="/support" element={<SupportPage />} />
              <Route element={<AdminRoute />}>
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> 
+        
               <Route path="/admin/bookings" element={<AllBookingsPage />} /> {/* Add this route */}
                 <Route path="/admin/reviews" element={<AllReviewsPage />} />
                 <Route path="/admin/transactions" element={<AdminTransactionsPage />} />
                 <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
                       <Route path="/admin" element={<AdminRoute />}>
-            <Route index element={<AdminDashboardPage />} /> {/* Renders Dashboard at /admin */}
+                  <Route path="/admin/reviews" element={<AdminRoute component={AdminReviewsPage} />} /> {/* New Admin Review Route */}
             <Route path="dashboard" element={<AdminDashboardPage />} /> {/* Explicit route for /admin/dashboard */}
             <Route path="users" element={<AdminUserManagementPage />} /> {/* /admin/users */}
             {/* <Route path="services" element={<AdminServiceManagementPage />} /> */}
