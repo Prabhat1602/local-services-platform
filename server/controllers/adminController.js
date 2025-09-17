@@ -4,7 +4,9 @@ const Service = require('../models/Service');
 const Booking = require('../models/Booking');
 const Review = require('../models/Review');
 const Transaction = require('../models/Transaction'); // Ensure Transaction model is defined and imported
-console.log('--- adminController.js Loaded ---'); 
+const Feedback = require('../models/Feedback'); // Make sure you import your Feedback model
+
+console.log('--- adminController.js Loaded ---');
 
 // @route   GET /api/admin/users
 // @access  Private/Admin
@@ -21,25 +23,24 @@ exports.getAllUsers = async (req, res) => {
 // @desc    Get platform statistics for admin dashboard
 // @route   GET /api/admin/stats
 // @access  Private/Admin
-exports.getAdminStats = async (req, res) => { // Renamed to getAdminStats and using exports
+exports.getAdminStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalServices = await Service.countDocuments();
     const totalBookings = await Booking.countDocuments();
 
-    // Calculate total revenue from completed and paid bookings
     const pipeline = [
-      { $match: { status: 'Completed', isPaid: true } }, // Match completed and paid bookings
+      { $match: { status: 'Completed', isPaid: true } },
       { $lookup: {
-          from: 'services', // The name of the collection for services (must match your model's collection name)
-          localField: 'service', // Field in Booking model
-          foreignField: '_id',   // Field in Service model
+          from: 'services',
+          localField: 'service',
+          foreignField: '_id',
           as: 'serviceDetails'
       }},
-      { $unwind: '$serviceDetails' }, // Deconstructs the serviceDetails array field from the input documents to output a document for each element.
+      { $unwind: '$serviceDetails' },
       { $group: {
-          _id: null, // Group all documents into one
-          totalRevenue: { $sum: '$serviceDetails.price' } // Sum the price from serviceDetails
+          _id: null,
+          totalRevenue: { $sum: '$serviceDetails.price' }
       }}
     ];
     const revenueResult = await Booking.aggregate(pipeline);
@@ -66,14 +67,13 @@ exports.getAdminStats = async (req, res) => { // Renamed to getAdminStats and us
   }
 };
 
-
 // @desc    Update provider status (Approved/Rejected)
 // @route   PUT /api/admin/users/:id/status
 // @access  Private/Admin
-exports.updateProviderStatus = async (req, res) => { // Using exports
+exports.updateProviderStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // Expects 'Approved' or 'Rejected'
+        const { status } = req.body;
 
         const user = await User.findById(id);
 
@@ -103,7 +103,7 @@ exports.updateProviderStatus = async (req, res) => { // Using exports
 // @desc    Delete a user
 // @route   DELETE /api/admin/users/:id
 // @access  Private/Admin
-exports.deleteUser = async (req, res) => { // Using exports
+exports.deleteUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
 
@@ -111,12 +111,11 @@ exports.deleteUser = async (req, res) => { // Using exports
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Prevent admin from deleting themselves or other admins accidentally
         if (user.role === 'admin') {
             return res.status(403).json({ message: 'Cannot delete an admin user.' });
         }
 
-        await user.deleteOne(); // Use deleteOne() or remove() depending on Mongoose version
+        await user.deleteOne();
 
         res.json({ message: 'User removed' });
 
@@ -125,7 +124,6 @@ exports.deleteUser = async (req, res) => { // Using exports
         res.status(500).json({ message: 'Server Error: Failed to delete user' });
     }
 };
-
 
 // @desc    Get all bookings
 // @route   GET /api/admin/bookings
@@ -153,8 +151,6 @@ exports.resolveDispute = async (req, res) => {
 
         if (booking) {
             booking.isDisputed = false;
-            // Optionally, the admin can force a status change, e.g., to 'Completed' or 'Cancelled'
-            // booking.status = 'Completed';
             await booking.save();
             res.json({ message: 'Dispute resolved.' });
         } else {
@@ -165,7 +161,6 @@ exports.resolveDispute = async (req, res) => {
         res.status(500).json({ message: 'Server Error: Failed to resolve dispute' });
     }
 };
-
 
 // @desc    Get all reviews on the platform
 // @route   GET /api/admin/reviews
@@ -190,7 +185,7 @@ exports.toggleReviewVisibility = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
     if (review) {
-      review.isVisible = !review.isVisible; // Flip the boolean value
+      review.isVisible = !review.isVisible;
       await review.save();
       res.json({ message: `Review visibility set to ${review.isVisible}` });
     } else {
@@ -201,7 +196,6 @@ exports.toggleReviewVisibility = async (req, res) => {
     res.status(500).json({ message: 'Server Error: Failed to toggle review visibility' });
   }
 };
-
 
 // @desc    Get all transactions
 // @route   GET /api/admin/transactions
@@ -219,22 +213,16 @@ exports.getAllTransactions = async (req, res) => {
   }
 };
 
-// Removed `module.exports = { ... }` because we are using `exports.functionName` for each function.
-// This makes all declared `exports.functionName` directly available for import.
-// ... (other admin controller functions)
-
-const Feedback = require('../models/Feedback'); // Make sure you import your Feedback model
-
-const getAllFeedback = async (req, res) => {
+// @desc    Get all feedback/support messages
+// @route   GET /api/admin/feedback
+// @access  Private/Admin
+// --- CRITICAL FIX: Add 'exports.' to make this function available! ---
+exports.getAllFeedback = async (req, res) => {
   try {
-    const feedback = await Feedback.find({}).populate('user', 'name email'); // Populate sender info
+    const feedback = await Feedback.find({}).populate('user', 'name email');
     res.status(200).json(feedback);
   } catch (error) {
+    console.error('Error in getAllFeedback:', error);
     res.status(500).json({ message: 'Failed to fetch feedback', error: error.message });
   }
-};
-
-module.exports = {
-  // ... existing exports ...
-  getAllFeedback,
 };

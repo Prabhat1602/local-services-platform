@@ -32,7 +32,7 @@ router.route('/transactions').get(protect, admin, adminController.getAllTransact
 // router.route('/services/:id').delete(protect, admin, adminController.deleteService);
 
 // If you have a separate feedback controller and route:
- router.route('/feedback').get(protect, admin, feedbackController.getAllFeedback);
+// router.route('/feedback').get(protect, admin, feedbackController.getAllFeedback);
 
 
 module.exports = router;
