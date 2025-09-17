@@ -107,7 +107,7 @@ Here are some screenshots showcasing the user interface of the platform.
 ### Login Page
 
 *(A brief description of the login form)*
-![Login Page](https://raw.githubusercontent.com/Prabhat1602/local-services-platform/main/assets/screenshot-login.png)
+![Login Page](https://github.com/Prabhat1602/local-services-platform/blob/main/assets/Screenshot-LoginPage.png?raw=true)
 
 
 ### Homepage
