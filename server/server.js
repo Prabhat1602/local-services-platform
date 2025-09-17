@@ -26,7 +26,22 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 
+const app = express(); // <--- THIS LINE MUST BE HERE, BEFORE ANY app.use/get/post
+// 6. Enable JSON body parsing for Express
+app.use(express.json());
+// 5. Configure CORS for Express
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+}));
 
+
+// CORS Configuration
+const corsOptions = {
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 
 // Mount All API Routes
 app.use('/api/admin', adminRoutes);
@@ -46,15 +61,10 @@ const startReminderJobs = require('./cron/reminderJobs');
 // Stripe webhook must be before express.json()
 app.use('/api/payments/webhook', paymentRoutes);
 // Initialize App
-const app = express();
 
 
-// CORS Configuration
-const corsOptions = {
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
+
+
 
 
 const server = http.createServer(app); // Use http to create server for Express and Socket.IO
