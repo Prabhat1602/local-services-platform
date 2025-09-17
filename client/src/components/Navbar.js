@@ -23,15 +23,16 @@ const Navbar = () => {
              <Notifications />
             <Link to="/profile" style={{ color: 'white', textDecoration: 'none' }}>Profile</Link>
             <Link to="/chat" style={{ color: 'white', textDecoration: 'none' }}>Chat</Link>
-           {userInfo && userInfo.role === 'admin' && (
-             <>
-  <Link to="/admin/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}> Admin Panel</Link>
-       <Link to="/admin/dashboard" className="admin-link">User Management</Link>
+{userInfo && userInfo.role === 'admin' && (
+  <>
+    {/* Consolidate or separate your admin links clearly */}
+    <Link to="/admin/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Admin Dashboard</Link>
+    {/* If User Management is a separate section on the dashboard, you don't need a separate Navbar link */}
     <Link to="/admin/bookings" style={{ color: 'white', textDecoration: 'none' }}>Platform Activity</Link>
-      <Link to="/admin/reviews" style={{ color: 'white', textDecoration: 'none' }}>Reviews</Link>
-      <Link to="/admin/transactions" style={{color: 'white', textDecoration: 'none'}}>Transactions</Link>
-      <Link to="/admin/feedback" style={{color: 'white', textDecoration: 'none'}}>Feedback</Link>
-           </>
+    <Link to="/admin/reviews" style={{ color: 'white', textDecoration: 'none' }}>Reviews</Link>
+    <Link to="/admin/transactions" style={{color: 'white', textDecoration: 'none'}}>Transactions</Link>
+    <Link to="/admin/feedback" style={{color: 'white', textDecoration: 'none'}}>Feedback</Link>
+  </>
 )}
 {userInfo.role!=='admin' &&  <Link to="/support" style={{color: 'white', textDecoration: 'none'}}>Support </Link>}
             {userInfo.role === 'provider' && (
