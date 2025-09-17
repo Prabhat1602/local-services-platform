@@ -40,7 +40,7 @@ const UserBookingsPage = () => {
     if (userInfo?.token) {
       fetchUserBookings();
     }
-  }, [fetchUserBookings]);
+  }, [fetchUserBookings ,userInfo?.token]);
 
 // Helper component for the Rescheduling UI
 const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {

@@ -1,15 +1,16 @@
 // client/src/pages/AdminUserManagementPage.js (Updated with correct API call)
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 const AdminUserManagementPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+   const navigate = useNavigate();
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   const token = userInfo?.token;
+   const isAdmin = userInfo?.role === 'admin';
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const AdminUserManagementPage = () => {
       setLoading(false);
       setError("Unauthorized: Admin access required or not logged in.");
     }
-  }, [token, userInfo?.role,config]);
+  }, [token, isAdmin, navigate,config]);
 
   // ... (handleProviderStatusUpdate and handleDeleteUser functions remain the same)
   const handleProviderStatusUpdate = async (providerId, newStatus) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useParams, useNavigate } from 'react-router-dom'; 
 const ProviderAvailabilityPage = () => {
   const [myServices, setMyServices] = useState([]);
   const [selectedServiceId, setSelectedServiceId] = useState('');
@@ -11,6 +11,8 @@ const ProviderAvailabilityPage = () => {
   const [success, setSuccess] = useState('');
 
   const { token } = JSON.parse(localStorage.getItem('userInfo'));
+    const { providerId } = useParams(); // <--- Define providerId here using useParams()
+  const navigate = useNavigate(); // Assume navigate is used for redirection
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
   // Fetch the provider's services on component load
@@ -31,7 +33,7 @@ const ProviderAvailabilityPage = () => {
       }
     };
     fetchMyServices();
-  }, [ config]);
+  }, [ token, providerId,config]);
 
   // Handler for when a different service is selected from the dropdown
   const handleServiceSelect = (serviceId) => {

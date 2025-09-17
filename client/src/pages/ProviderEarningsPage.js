@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 const ProviderEarningsPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  const token = userInfo?.token; // <--- Define token here
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userId = userInfo?._id; // <--- Define userId here
   const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
 
   useEffect(() => {
@@ -23,7 +24,7 @@ const ProviderEarningsPage = () => {
     if (userInfo?.token) {
       fetchStats();
     }
-  }, [userInfo?.token, config]);
+  }, [token, userId, config]);
 
   if (loading) return <p>Loading earnings data...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
