@@ -8,7 +8,7 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user'); // Default role is 'user'
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();

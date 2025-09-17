@@ -23,7 +23,7 @@ const ProviderEarningsPage = () => {
     if (userInfo?.token) {
       fetchStats();
     }
-  }, [userInfo?.token]);
+  }, [userInfo?.token, config]);
 
   if (loading) return <p>Loading earnings data...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;

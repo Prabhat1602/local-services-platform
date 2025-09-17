@@ -115,7 +115,7 @@ const Notifications = () => {
       }
     };
     // Dependencies: token for auth, SOCKET_SERVER_URL for connection target, userId for initial join.
-  }, [token, userId, SOCKET_SERVER_URL, navigate, config]); // Added config, navigate
+  }, [token, userId, SOCKET_SERVER_URL, navigate, config,userInfo]); // Added config, navigate
 
   const handleOpen = async () => {
     // Only toggle and mark read if the user is authenticated

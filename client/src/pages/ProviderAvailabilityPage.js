@@ -31,7 +31,7 @@ const ProviderAvailabilityPage = () => {
       }
     };
     fetchMyServices();
-  }, []);
+  }, [ config]);
 
   // Handler for when a different service is selected from the dropdown
   const handleServiceSelect = (serviceId) => {

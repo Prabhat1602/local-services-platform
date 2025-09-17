@@ -1,99 +1,91 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'; // Added useCallback
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const ChatPage = () => {
-  // --- ALL HOOKS AT TOP-LEVEL, UNCONDITIONAL ---
+  // --- ALL HOOKS MUST BE AT THE TOP-LEVEL, UNCONDITIONAL ---
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [error, setError] = useState('');
-  const [socketConnected, setSocketConnected] = useState(false); // Track socket connection status
+  const [socketConnected, setSocketConnected] = useState(false);
 
-  const socketRef = useRef(null); // Initialize with null
+  const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
-  // Retrieve userInfo consistently
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   const token = userInfo?.token;
-  const userId = userInfo?._id; // Get userId for sender checks
+  const userId = userInfo?._id;
 
-  // Memoize config to prevent re-creation on every render if token doesn't change
   const config = useCallback(() => ({
     headers: { Authorization: `Bearer ${token}` }
   }), [token]);
 
-  // --- CRITICAL CORRECTION FOR SOCKET_SERVER_URL ---
-  // Ensure this correctly points to your Render backend's root URL (e.g., https://your-backend.onrender.com)
-  // It should NOT include '/api'
   const SOCKET_SERVER_URL = process.env.REACT_APP_API_URL
-    ? process.env.REACT_APP_API_URL.replace('/api', '') // Remove /api to get base URL
-    : 'http://localhost:5001'; // Fallback for local dev, ensure this matches server port
+    ? process.env.REACT_APP_API_URL.replace('/api', '')
+    : 'http://localhost:5001';
 
-  // Log the URL to verify in console
+  // --- EFFECT 1: Log SOCKET_SERVER_URL ---
   useEffect(() => {
     console.log("ChatPage: SOCKET_SERVER_URL set to:", SOCKET_SERVER_URL);
   }, [SOCKET_SERVER_URL]);
 
-
-  // --- EFFECT 1: Handle Authentication/Authorization & Redirection ---
+  // --- EFFECT 2: Handle Authentication/Authorization & Redirection ---
+  // This useEffect will run unconditionally. The redirect logic is fine here.
   useEffect(() => {
-    if (!token || !userInfo || !userId) { // Also check for userId
+    if (!token || !userInfo || !userId) {
       console.log("ChatPage: User not authenticated or user ID missing, redirecting to login.");
       navigate('/login');
     }
-  }, [token, userInfo, userId, navigate]); // Add userId to dependencies
+  }, [token, userInfo, userId, navigate]);
 
-
-  // --- IMPORTANT: ONLY PROCEED WITH RENDERING THE MAIN CHAT UI IF AUTHENTICATED ---
-  // If not authenticated, we simply render nothing (or a loading state)
-  // because the useEffect above will redirect.
-  if (!token || !userInfo || !userId) {
-    return null; // Don't render anything if not authenticated, let the redirect happen
-  }
-
-
-  // --- EFFECT 2: Fetch all conversations ---
+  // --- EFFECT 3: Fetch all conversations ---
+  // This useEffect must also be unconditional.
   useEffect(() => {
+    // Only fetch if authenticated (check inside the effect)
+    if (!token || !userId) { // Ensure token and userId exist before fetching
+      setLoadingConversations(false); // Stop loading if not authenticated to prevent infinite spinner
+      return;
+    }
+
     const fetchConversations = async () => {
       try {
         setLoadingConversations(true);
         setError('');
-        // Use the memoized config
         const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/chat/conversations`, config());
         setConversations(data);
       } catch (error) {
         console.error("ChatPage: Error fetching conversations:", error.response?.data?.message || error.message);
         setError(error.response?.data?.message || "Failed to fetch conversations.");
         if (error.response?.status === 401) {
-            navigate('/login'); // Redirect on 401 for conversations API as well
+            navigate('/login');
         }
       } finally {
         setLoadingConversations(false);
       }
     };
-    // Only fetch if authenticated
-    if (token) {
-        fetchConversations();
-    }
-  }, [token, navigate, config]); // Add config to dependencies, navigate for potential redirect
+    fetchConversations();
+  }, [token, userId, navigate, config]); // Add userId to dependencies
 
-
-  // --- EFFECT 3: Socket connection and message listener ---
+  // --- EFFECT 4: Socket connection and message listener ---
+  // This useEffect must also be unconditional.
   useEffect(() => {
-    if (!token) return; // Ensure token exists before attempting socket connection
+    if (!token || !userId) { // Ensure token and userId exist before attempting socket connection
+        setSocketConnected(false); // Ensure socket is marked disconnected if not authenticated
+        return;
+    }
     if (!SOCKET_SERVER_URL) {
       console.error("ChatPage: SOCKET_SERVER_URL is empty, cannot connect Socket.IO.");
       setError("Chat connection URL not configured.");
+      setSocketConnected(false);
       return;
     }
 
     console.log("ChatPage: Attempting Socket.IO connection to:", SOCKET_SERVER_URL);
-    // Explicitly disconnect any existing socket before creating a new one
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
@@ -101,20 +93,17 @@ const ChatPage = () => {
 
     socketRef.current = io(SOCKET_SERVER_URL, {
       auth: { token: token },
-      transports: ['websocket', 'polling'], // Explicitly use websockets first
-      secure: true, // Force HTTPS/WSS if your server URL uses HTTPS
+      transports: ['websocket', 'polling'],
+      secure: true,
     });
 
     socketRef.current.on('connect', () => {
       console.log('ChatPage: Socket.IO Connected:', socketRef.current.id);
       setSocketConnected(true);
-      // Join own user room immediately upon connect
       if (userId) {
           socketRef.current.emit('joinConversation', userId);
           console.log(`ChatPage: Joined user room ${userId} on connect.`);
       }
-
-      // If a conversation is already selected, join its room
       if (selectedConversation) {
         socketRef.current.emit('joinConversation', selectedConversation._id);
         console.log(`ChatPage: Joined conversation room ${selectedConversation._id} on connect.`);
@@ -122,39 +111,30 @@ const ChatPage = () => {
     });
 
     socketRef.current.on('connect_error', (err) => {
-        console.error('ChatPage: Socket.IO Connection Error:', err.message, err.data); // err.data might have more info
+        console.error('ChatPage: Socket.IO Connection Error:', err.message, err.data);
         setError('Failed to connect to chat server. Check network and backend logs.');
         setSocketConnected(false);
-        // If connection fails due to auth, redirect to login
         if (err.message.includes('Authentication error')) {
             navigate('/login');
         }
     });
 
-    socketRef.current.on('disconnect', (reason) => { // reason provides disconnect cause
+    socketRef.current.on('disconnect', (reason) => {
       console.log('ChatPage: Socket.IO Disconnected. Reason:', reason);
       setSocketConnected(false);
-      // Optionally handle specific disconnect reasons
-      if (reason === 'io server disconnect' || reason === 'transport close') {
-        // Maybe try to reconnect or show a more specific message
-      }
     });
 
     socketRef.current.on('receiveMessage', (message) => {
       console.log('ChatPage: Received message:', message);
-      // Ensure message.conversation matches selectedConversation._id
       if (selectedConversation && message.conversation === selectedConversation._id) {
         setMessages((prev) => [...prev, message]);
       } else if (!selectedConversation) {
-          // If no convo selected, log but don't add.
           console.log('ChatPage: Received message for unselected conversation.');
       } else if (message.conversation !== selectedConversation._id) {
           console.log(`ChatPage: Received message for different conversation (${message.conversation}) than selected (${selectedConversation._id}).`);
-          // OPTIONAL: Trigger a notification for the other conversation
       }
     });
 
-    // Clean up on component unmount or dependency change
     return () => {
       if (socketRef.current) {
         console.log('ChatPage: Disconnecting Socket.IO clean up.');
@@ -162,21 +142,27 @@ const ChatPage = () => {
         socketRef.current = null;
       }
     };
-    // Dependencies: token for auth, SOCKET_SERVER_URL for connection target, userId for initial join.
-    // selectedConversation should NOT be in this dependency array. Instead, handle joining conversation rooms
-    // explicitly when selectedConversation changes or on socket reconnect.
-  }, [token, SOCKET_SERVER_URL, userId, navigate]);
+  }, [token, SOCKET_SERVER_URL, userId, navigate, selectedConversation]); // selectedConversation needs to be here to join/leave rooms correctly
 
-
-  // --- EFFECT 4: Scroll to bottom of messages ---
+  // --- EFFECT 5: Scroll to bottom of messages ---
+  // This useEffect must also be unconditional.
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
 
+  // --- Now, conditional rendering can happen AFTER all hooks have been called ---
+  if (!token || !userInfo || !userId) {
+    return (
+      <p className="text-center text-red-500 mt-10">
+        You are not logged in. Redirecting to login...
+      </p>
+    ); // This is the early return for rendering
+  }
+
   // --- Helper function to select a conversation ---
   const selectConversation = async (convo) => {
-    // Only update if it's a new conversation
+    // ... (rest of this function remains the same)
     if (selectedConversation?._id !== convo._id) {
         setSelectedConversation(convo);
         setMessages([]); // Clear messages when selecting new conversation
@@ -194,7 +180,6 @@ const ChatPage = () => {
         }
 
         try {
-            // Use the memoized config
             const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/chat/messages/${convo._id}`, config());
             setMessages(data);
             setError('');
@@ -203,7 +188,7 @@ const ChatPage = () => {
             setError(error.response?.data?.message || "Failed to fetch messages for this conversation.");
             setMessages([]);
             if (error.response?.status === 401) {
-                navigate('/login'); // Redirect on 401 for messages API as well
+                navigate('/login');
             }
         }
     }
@@ -211,6 +196,7 @@ const ChatPage = () => {
 
   // --- Helper function to send a message ---
   const sendMessage = async (e) => {
+    // ... (rest of this function remains the same)
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
     if (!socketRef.current?.connected) {
@@ -219,7 +205,7 @@ const ChatPage = () => {
         return;
     }
 
-    const receiver = selectedConversation.participants.find(p => p._id !== userId); // Use userId
+    const receiver = selectedConversation.participants.find(p => p._id !== userId);
     if (!receiver) {
         console.error("ChatPage: Receiver not found in conversation participants.");
         setError("Error: Could not find conversation receiver.");
@@ -228,46 +214,34 @@ const ChatPage = () => {
 
     const messageData = {
       conversationId: selectedConversation._id,
-      sender: userId, // Use userId
+      sender: userId,
       text: newMessage,
-      // receiverId: receiver._id, // Not strictly needed for `sendMessage` emit to a room
-      createdAt: new Date().toISOString(), // Add timestamp here
+      createdAt: new Date().toISOString(),
     };
 
     socketRef.current.emit('sendMessage', messageData);
     setNewMessage('');
-    // Optimistic UI update: add message immediately
     setMessages((prev) => [...prev, {
-        _id: `temp-${Date.now()}-${Math.random()}`, // Unique temporary ID
-        conversation: selectedConversation._id, // 'conversation' to match backend model
+        _id: `temp-${Date.now()}-${Math.random()}`,
+        conversation: selectedConversation._id,
         sender: userId,
         text: messageData.text,
-        createdAt: messageData.createdAt // Use the same timestamp
+        createdAt: messageData.createdAt
     }]);
-
-    // Optional: Save message to DB via REST API if you want to ensure persistence
-    // This is good practice for production, but can be done asynchronously after emitting.
-    /*
-    try {
-        await axios.post(`${process.env.REACT_APP_API_URL}/chat/messages`, messageData, config());
-    } catch (dbError) {
-        console.error("ChatPage: Error saving message to DB via REST:", dbError);
-        // Handle gracefully, maybe revert optimistic update or notify user
-    }
-    */
   };
 
-  // --- Conditional Rendering for Loading/Error states (after all hooks) ---
+  // --- Conditional Rendering for Loading/Error states (after all hooks and early returns) ---
   if (loadingConversations) {
-    return <p>Loading conversations...</p>;
+    return <p className="text-center mt-10">Loading conversations...</p>;
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>Error: {error}</p>;
+    return <p className="text-center mt-10" style={{ color: 'red' }}>Error: {error}</p>;
   }
 
   // --- Main Chat UI ---
   return (
+    // ... (rest of your JSX) ...
     <div className="flex h-[80vh] bg-gray-100 rounded-lg shadow-lg overflow-hidden">
       <div className="w-1/4 bg-white border-r border-gray-200 p-4 overflow-y-auto"> {/* Sidebar */}
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Conversations</h2>

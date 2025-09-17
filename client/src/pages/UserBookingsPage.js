@@ -1,8 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe('pk_test_51S5Pyn3WVAC5yOJa8dWVgJpXvJWSKR3U2i9ASf6ijxegh4fxYv6pTOOaDey4L0cqsHMnXBcJ6Cf4SbAMoMQHpdkx00gNp9Wkfs');
+ 
+  // Main Page Component
+const UserBookingsPage = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showReviewFormFor, setShowReviewFormFor] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [rescheduleBookingId, setRescheduleBookingId] = useState(null);
+  const [showDisputeFormFor, setShowDisputeFormFor] = useState(null);
+  const [disputeReason, setDisputeReason] = useState('');
+
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const token = userInfo?.token;
+  const userId = userInfo?._id; // Assuming you need userId for something
+
+  // This is the correct place for useCallback for config
+  const config = useCallback(() => ({
+    headers: { Authorization: `Bearer ${token}` }
+  }), [token]);
+  const fetchUserBookings = useCallback(async () => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/bookings/myuserbookings`, config);
+      setBookings(data);
+    } catch (err) {
+      setError('Failed to fetch your bookings.');
+    } finally {
+      setLoading(false);
+    }
+  },[config, userInfo?.token]);
+
+  useEffect(() => {
+    if (userInfo?.token) {
+      fetchUserBookings();
+    }
+  }, [fetchUserBookings]);
 
 // Helper component for the Rescheduling UI
 const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {
@@ -71,37 +109,7 @@ const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {
   );
 };
 
-// Main Page Component
-const UserBookingsPage = () => {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [showReviewFormFor, setShowReviewFormFor] = useState(null);
-  const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState('');
-  const [rescheduleBookingId, setRescheduleBookingId] = useState(null);
-  const [showDisputeFormFor, setShowDisputeFormFor] = useState(null);
-  const [disputeReason, setDisputeReason] = useState('');
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-
-  const fetchUserBookings = async () => {
-    try {
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/bookings/myuserbookings`, config);
-      setBookings(data);
-    } catch (err) {
-      setError('Failed to fetch your bookings.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (userInfo?.token) {
-      fetchUserBookings();
-    }
-  }, []);
 
   const handleCancelBooking = async (bookingId) => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {

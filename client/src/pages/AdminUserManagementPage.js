@@ -33,7 +33,7 @@ const AdminUserManagementPage = () => {
       setLoading(false);
       setError("Unauthorized: Admin access required or not logged in.");
     }
-  }, [token, userInfo?.role]);
+  }, [token, userInfo?.role,config]);
 
   // ... (handleProviderStatusUpdate and handleDeleteUser functions remain the same)
   const handleProviderStatusUpdate = async (providerId, newStatus) => {

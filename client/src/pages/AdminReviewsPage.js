@@ -1,5 +1,5 @@
 // client/src/pages/AdminReviewsPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useCallback} from 'react';
 import axios from 'axios';
 
 const AdminReviewsPage = () => {
@@ -12,7 +12,7 @@ const AdminReviewsPage = () => {
   const token = userInfo?.token;
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -24,16 +24,11 @@ const AdminReviewsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [config]);
 
   useEffect(() => {
-    if (token && userInfo?.role === 'admin') {
-      fetchReviews();
-    } else {
-      setLoading(false);
-      setError("Unauthorized: Admin access required or not logged in.");
-    }
-  }, [token, userInfo?.role]);
+  fetchReviews();
+}, [fetchReviews]); 
 
   const handleToggleVisibility = async (reviewId, currentVisibility) => {
     try {

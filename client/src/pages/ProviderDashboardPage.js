@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Add useCallback here
 import axios from 'axios';
 
 const ProviderDashboardPage = () => {
@@ -6,9 +6,15 @@ const ProviderDashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+ 
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-
-  const fetchBookings = async () => {
+ 
+   const token = userInfo?.token;
+  const userId = userInfo?._id;
+  const config = useCallback(() => ({
+    headers: { Authorization: `Bearer ${token}` }
+  }), [token]);
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       const config = {
@@ -23,13 +29,11 @@ const ProviderDashboardPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  },[config, userId]);
 
-  useEffect(() => {
-    if (userInfo?.token) {
-        fetchBookings();
-    }
-  }, [userInfo?.token]);
+ useEffect(() => {
+  fetchBookings();
+}, [fetchBookings]);
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
