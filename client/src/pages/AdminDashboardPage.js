@@ -1,14 +1,15 @@
-// export default AdminDashboardPage;
-import React, { useState, useEffect } from 'react';
+// client/src/pages/AdminDashboardPage.js
+import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Added useNavigate
 
-// Helper component for displaying stats. It needs to be defined in the file.
+// Helper component for displaying stats
 const StatCard = ({ title, value, icon }) => (
-  <div className="stat-card">
-    <div className="stat-icon">{icon}</div>
-    <div className="stat-info">
-      <h4>{title}</h4>
-      <p>{value}</p>
+  <div className="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
+    <div className="text-3xl text-blue-600">{icon}</div> {/* Styling for icon */}
+    <div>
+      <h4 className="text-gray-500 text-sm font-medium">{title}</h4>
+      <p className="text-xl font-bold text-gray-800">{value}</p>
     </div>
   </div>
 );
@@ -16,136 +17,192 @@ const StatCard = ({ title, value, icon }) => (
 const AdminDashboardPage = () => {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
+  const [feedbackList, setFeedbackList] = useState([]); // ADDED: State for feedback
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const navigate = useNavigate(); // Initialize navigate
+
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   const token = userInfo?.token;
-  const config = { headers: { Authorization: `Bearer ${token}` } };
+  const isAdmin = userInfo?.role === 'admin';
+
+  // Memoize config to prevent re-creation on every render if token doesn't change
+  const config = useCallback(() => ({
+    headers: { Authorization: `Bearer ${token}` }
+  }), [token]);
 
   // Combined useEffect to fetch all necessary data at once
   useEffect(() => {
+    if (!token || !isAdmin) { // Check both token and isAdmin upfront
+      setLoading(false);
+      setError("You are not authorized to view this page. Please log in as an administrator.");
+      navigate('/login'); // Redirect to login if not authorized
+      return;
+    }
+
     const fetchData = async () => {
       try {
         setLoading(true);
-        // --- FIX 1 & 2: Provide complete and correct API endpoints for stats and users ---
-        // Assuming your backend has routes like:
-        // GET /api/admin/stats for dashboard statistics
-        // GET /api/admin/users for all users (including providers)
-              // --- CORRECTED API ENDPOINTS ---
-        const [statsResponse, usersResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, config), // Correct endpoint for stats
-          axios.get(`${process.env.REACT_APP_API_URL}/admin/users`, config)  // Correct endpoint for all users
+        setError(''); // Clear previous errors
+
+        // --- FETCH ADMIN STATS, USERS, AND FEEDBACK ---
+        const [statsResponse, usersResponse, feedbackResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/admin/stats`, config()), // Use memoized config
+          axios.get(`${process.env.REACT_APP_API_URL}/admin/users`, config()),  // Use memoized config
+          axios.get(`${process.env.REACT_APP_API_URL}/admin/feedback`, config()) // ADDED: Fetch feedback
         ]);
-        // --- END CORRECTED API ENDPOINTS ---
 
         setStats(statsResponse.data);
-        setUsers(usersResponse.data); // Assuming usersData.data is an array of user objects
+        setUsers(usersResponse.data);
+        setFeedbackList(feedbackResponse.data); // Set feedback state
+
       } catch (err) {
-        // More robust error handling to get specific message from backend
+        console.error("AdminDashboard: Error fetching data:", err.response?.data?.message || err.message);
         setError(err.response?.data?.message || 'Failed to fetch dashboard data. Check backend logs.');
+        if (err.response?.status === 401 || err.response?.status === 403) {
+            navigate('/login'); // Redirect on specific auth errors
+        }
       } finally {
         setLoading(false);
       }
     };
-    if (token) {
-      fetchData();
-    } else {
-        // If no token, user is not logged in or not an admin, handle accordingly
-        setLoading(false);
-        setError("You are not authorized to view this page. Please log in as an administrator.");
-    }
-  }, [token]); // token is a dependency, so if it changes (e.g., user logs out), useEffect re-runs
+    
+    fetchData(); // Call fetchData directly now that auth check is upfront
+  }, [token, isAdmin, navigate, config]); // Add navigate and config to dependencies
 
   const handleStatusUpdate = async (providerId, newStatus) => {
     try {
       setSuccess('');
-      // --- FIX 3: Correct API endpoint for updating provider status ---
-      // Assuming your backend route is something like PUT /api/admin/users/:providerId/status
-      await axios.put(`${process.env.REACT_APP_API_URL}/admin/users/${providerId}/status`, { status: newStatus }, config);
+      // --- Correct API endpoint for updating provider status ---
+      await axios.put(`${process.env.REACT_APP_API_URL}/admin/users/${providerId}/status`, { status: newStatus }, config()); // Use memoized config
       setSuccess(`Provider status updated to ${newStatus}.`);
-      // Update the user's status in the local state to reflect the change instantly
       setUsers(prevUsers => 
         prevUsers.map(user => 
           user._id === providerId ? { ...user, providerStatus: newStatus } : user
         )
       );
     } catch (error) {
+      console.error("AdminDashboard: Error updating provider status:", error.response?.data?.message || error.message);
       setError(error.response?.data?.message || 'Failed to update provider status.');
     }
   };
 
-  // --- ADDED: Basic authorization check for admin role ---
-  if (!userInfo || userInfo.role !== 'admin') {
-    return <p style={{ color: 'red' }}>Access Denied: You must be logged in as an administrator.</p>;
-  }
-
-  if (loading) return <p>Loading data...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  // --- RENDERING LOGIC ---
+  if (loading) return <p className="text-center text-lg mt-8">Loading dashboard data...</p>;
+  if (error) return <p className="text-center text-lg mt-8 text-red-600">{error}</p>;
 
   // Filter users to get only pending providers
-  // --- IMPORTANT: Ensure your backend populates 'providerStatus' on user documents for providers ---
   const pendingProviders = users.filter(user => user.role === 'provider' && user.providerStatus === 'Pending');
 
   return (
-    <div className="admin-dashboard-container"> {/* Added a container div for potential styling */}
-      <h1>Admin Dashboard</h1>
-      {success && <p style={{ color: 'green', backgroundColor: '#e6ffe6', padding: '10px', borderRadius: '5px' }}>{success}</p>}
-      
-      {/* Stats Report Section */}
-      {stats ? ( // Check if stats is not null before rendering
-        <div className="stats-grid">
-          <StatCard title="Total Users" value={stats.totalUsers} icon="👥" />
-          <StatCard title="Total Services" value={stats.totalServices} icon="🛠️" />
-          <StatCard title="Total Bookings" value={stats.totalBookings} icon="📅" />
-          <StatCard title="Total Revenue" value={`$${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}`} icon="💰" /> {/* Added check for totalRevenue */}
-          <StatCard title="Average Rating" value={`⭐ ${stats.averageRating || 'N/A'}`} icon="🌟" /> {/* Added check for averageRating */}
+    <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+      {success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <span className="block sm:inline">{success}</span>
         </div>
-      ) : (
-        <p>No statistics available.</p>
+      )}
+      {error && ( // Display persistent error message here as well
+         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <span className="block sm:inline">{error}</span>
+        </div>
       )}
       
-      {/* Section for Pending Providers */}
-      <div className="admin-section">
-        <h2>Pending Provider Approvals ({pendingProviders.length})</h2>
-        {pendingProviders.length > 0 ? (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendingProviders.map(provider => (
-                <tr key={provider._id}>
-                  <td>{provider.name}</td>
-                  <td>{provider.email}</td>
-                  <td>
-                    {/* Make sure providerStatus is what you expect from backend */}
-                    <button onClick={() => handleStatusUpdate(provider._id, 'Approved')} className="btn btn-approve">Approve</button>
-                    <button onClick={() => handleStatusUpdate(provider._id, 'Rejected')} className="btn btn-reject">Reject</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Stats Report Section */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Platform Statistics</h2>
+        {stats ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard title="Total Users" value={stats.totalUsers || 0} icon="👥" />
+            <StatCard title="Total Services" value={stats.totalServices || 0} icon="🛠️" />
+            <StatCard title="Total Bookings" value={stats.totalBookings || 0} icon="📅" />
+            <StatCard title="Total Revenue" value={`$${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}`} icon="💰" />
+            {/* If you have average rating data */}
+            {stats.averageRating && <StatCard title="Average Rating" value={`⭐ ${stats.averageRating.toFixed(1)}`} icon="🌟" />}
+          </div>
         ) : (
-          <p>No pending provider requests.</p>
+          <p className="text-gray-600">No statistics available.</p>
         )}
-      </div>
+      </section>
+      
+      {/* Section for Pending Providers */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Pending Provider Approvals ({pendingProviders.length})</h2>
+        {pendingProviders.length > 0 ? (
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {pendingProviders.map(provider => (
+                  <tr key={provider._id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{provider.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{provider.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button 
+                        onClick={() => handleStatusUpdate(provider._id, 'Approved')} 
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2 transition-colors duration-200"
+                      >
+                        Approve
+                      </button>
+                      <button 
+                        onClick={() => handleStatusUpdate(provider._id, 'Rejected')} 
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+                      >
+                        Reject
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-600">No pending provider requests.</p>
+        )}
+      </section>
 
-      {/* You might want a section for all users/providers, not just pending ones */}
-      {/* Example:
-      <div className="admin-section">
-        <h2>All Users and Providers ({users.length})</h2>
-        <table className="admin-table">
-            // ... table header and rows for all users ...
-        </table>
-      </div>
-      */}
+      {/* ADDED: Section for Recent Feedback/Support Tickets */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Recent Feedback/Support</h2>
+        {feedbackList.length > 0 ? (
+            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sender</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            {/* Add action buttons for feedback, e.g., 'View Detail', 'Mark Resolved' */}
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {feedbackList.map(feedback => (
+                            <tr key={feedback._id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{feedback.user ? feedback.user.name : 'Guest'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{feedback.subject}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs overflow-hidden text-ellipsis">{feedback.message}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(feedback.createdAt).toLocaleDateString()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        ) : (
+            <p className="text-gray-600">No recent feedback or support tickets.</p>
+        )}
+      </section>
+
+      {/* You might want other sections here, e.g., for All Users, All Services, All Bookings */}
+      {/* These could also be separate Admin sub-pages linked from AdminDashboard or Navbar */}
     </div>
   );
 };

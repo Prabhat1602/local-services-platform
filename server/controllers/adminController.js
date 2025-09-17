@@ -221,3 +221,20 @@ exports.getAllTransactions = async (req, res) => {
 
 // Removed `module.exports = { ... }` because we are using `exports.functionName` for each function.
 // This makes all declared `exports.functionName` directly available for import.
+// ... (other admin controller functions)
+
+const Feedback = require('../models/Feedback'); // Make sure you import your Feedback model
+
+const getAllFeedback = async (req, res) => {
+  try {
+    const feedback = await Feedback.find({}).populate('user', 'name email'); // Populate sender info
+    res.status(200).json(feedback);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch feedback', error: error.message });
+  }
+};
+
+module.exports = {
+  // ... existing exports ...
+  getAllFeedback,
+};

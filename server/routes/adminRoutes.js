@@ -27,11 +27,12 @@ router.route('/reviews/:id/toggle-visibility').put(protect, admin, adminControll
 
 router.route('/transactions').get(protect, admin, adminController.getAllTransactions);
 
+
 // If you have a separate delete service function in adminController:
 // router.route('/services/:id').delete(protect, admin, adminController.deleteService);
 
 // If you have a separate feedback controller and route:
-// router.route('/feedback').get(protect, admin, feedbackController.getAllFeedback);
+ router.route('/feedback').get(protect, admin, feedbackController.getAllFeedback);
 
 
 module.exports = router;
