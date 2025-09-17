@@ -120,7 +120,11 @@ const AdminDashboardPage = () => {
             <StatCard title="Total Bookings" value={stats.totalBookings || 0} icon="📅" />
             <StatCard title="Total Revenue" value={`$${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}`} icon="💰" />
             {/* If you have average rating data */}
-            {stats.averageRating && <StatCard title="Average Rating" value={`⭐ ${stats.averageRating.toFixed(1)}`} icon="🌟" />}
+            {stats.averageRating != null && typeof stats.averageRating === 'number' ? (
+  <StatCard title="Average Rating" value={`⭐ ${stats.averageRating.toFixed(1)}`} icon="🌟" />
+) : (
+  <StatCard title="Average Rating" value="N/A" icon="🌟" /> // Or a default like "0.0"
+)}
           </div>
         ) : (
           <p className="text-gray-600">No statistics available.</p>
