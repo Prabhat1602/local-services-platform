@@ -15,15 +15,16 @@ const protect = async (req, res, next) => {
       // Get user from the token and attach it to the request object
       req.user = await User.findById(decoded.id).select('-password');
       next();
-    } catch (error) {
+    }catch (error) {
+      console.error(error); // Add some logging here for better debugging
       res.status(401).json({ message: 'Not authorized, token failed' });
     }
-  }
-
-  if (!token) {
+  } else { // Added else block for clarity if token is not in header
     res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
+
+ 
 
 // Middleware to check if the user is a provider
 const provider = (req, res, next) => {
