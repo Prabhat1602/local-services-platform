@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+// The import for ChatPage.css should NOT be here if styles are in index.css
 
 const ChatPage = () => {
-  // --- ALL HOOKS MUST BE AT THE TOP-LEVEL, UNCONDITIONAL ---
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -35,7 +35,6 @@ const ChatPage = () => {
   }, [SOCKET_SERVER_URL]);
 
   // --- EFFECT 2: Handle Authentication/Authorization & Redirection ---
-  // This useEffect will run unconditionally. The redirect logic is fine here.
   useEffect(() => {
     if (!token || !userInfo || !userId) {
       console.log("ChatPage: User not authenticated or user ID missing, redirecting to login.");
@@ -44,11 +43,9 @@ const ChatPage = () => {
   }, [token, userInfo, userId, navigate]);
 
   // --- EFFECT 3: Fetch all conversations ---
-  // This useEffect must also be unconditional.
   useEffect(() => {
-    // Only fetch if authenticated (check inside the effect)
-    if (!token || !userId) { // Ensure token and userId exist before fetching
-      setLoadingConversations(false); // Stop loading if not authenticated to prevent infinite spinner
+    if (!token || !userId) {
+      setLoadingConversations(false);
       return;
     }
 
@@ -69,48 +66,81 @@ const ChatPage = () => {
       }
     };
     fetchConversations();
-  }, [token, userId, navigate, config]); // Add userId to dependencies
+  }, [token, userId, navigate, config]);
+
+  // --- NEW EFFECT: Auto-select first conversation OR load messages for existing selected one ---
+  useEffect(() => {
+    if (!token || !userId || loadingConversations) return; // Wait for auth and conversations to load
+
+    if (!selectedConversation && conversations.length > 0) {
+      console.log("ChatPage: Auto-selecting first conversation.");
+      selectConversation(conversations[0]);
+    }
+    else if (selectedConversation && messages.length === 0 && socketConnected) {
+      const fetchMessagesForSelected = async () => {
+             try {
+                if (messages.length > 0) return; // Prevent re-fetching if messages have just been set by selectConversation
+
+                console.log(`ChatPage: Fetching messages for pre-selected conversation ${selectedConversation._id}.`);
+                const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/chat/messages/${selectedConversation._id}`, config());
+                setMessages(data);
+                setError('');
+            } catch (error) {
+                console.error("ChatPage: Error fetching messages for conversation:", error.response?.data?.message || error.message);
+                setError(error.response?.data?.message || "Failed to fetch messages for this conversation.");
+                setMessages([]);
+                if (error.response?.status === 401) {
+                    navigate('/login');
+                }
+            }
+        };
+        fetchMessagesForSelected();
+    }
+  }, [conversations, selectedConversation, socketConnected, token, userId, navigate, config, loadingConversations, messages.length]);
+
 
   // --- EFFECT 4: Socket connection and message listener ---
-  // This useEffect must also be unconditional.
   useEffect(() => {
-    if (!token || !userId) { // Ensure token and userId exist before attempting socket connection
-        setSocketConnected(false); // Ensure socket is marked disconnected if not authenticated
+    if (!token || !userId || !SOCKET_SERVER_URL) {
+        setSocketConnected(false);
+        if (!SOCKET_SERVER_URL) {
+          console.error("ChatPage: SOCKET_SERVER_URL is empty, cannot connect Socket.IO.");
+          setError("Chat connection URL not configured.");
+        } else {
+          console.log("ChatPage: Skipping Socket.IO connection. User not authenticated or ID missing.");
+        }
         return;
     }
-    if (!SOCKET_SERVER_URL) {
-      console.error("ChatPage: SOCKET_SERVER_URL is empty, cannot connect Socket.IO.");
-      setError("Chat connection URL not configured.");
-      setSocketConnected(false);
-      return;
+
+    if (socketRef.current && socketRef.current.connected) {
+        console.log("ChatPage: Existing socket is connected, skipping new connection.");
+        return;
+    }
+    if (socketRef.current && !socketRef.current.connected) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
     }
 
     console.log("ChatPage: Attempting Socket.IO connection to:", SOCKET_SERVER_URL);
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-      socketRef.current = null;
-    }
-
-    socketRef.current = io(SOCKET_SERVER_URL, {
+    const socket = io(SOCKET_SERVER_URL, {
       auth: { token: token },
       transports: ['websocket', 'polling'],
       secure: true,
+      autoConnect: true,
     });
 
-    socketRef.current.on('connect', () => {
-      console.log('ChatPage: Socket.IO Connected:', socketRef.current.id);
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('ChatPage: Socket.IO Connected:', socket.id);
       setSocketConnected(true);
       if (userId) {
-          socketRef.current.emit('joinConversation', userId);
+          socket.emit('joinConversation', userId);
           console.log(`ChatPage: Joined user room ${userId} on connect.`);
-      }
-      if (selectedConversation) {
-        socketRef.current.emit('joinConversation', selectedConversation._id);
-        console.log(`ChatPage: Joined conversation room ${selectedConversation._id} on connect.`);
       }
     });
 
-    socketRef.current.on('connect_error', (err) => {
+    socket.on('connect_error', (err) => {
         console.error('ChatPage: Socket.IO Connection Error:', err.message, err.data);
         setError('Failed to connect to chat server. Check network and backend logs.');
         setSocketConnected(false);
@@ -119,12 +149,12 @@ const ChatPage = () => {
         }
     });
 
-    socketRef.current.on('disconnect', (reason) => {
+    socket.on('disconnect', (reason) => {
       console.log('ChatPage: Socket.IO Disconnected. Reason:', reason);
       setSocketConnected(false);
     });
 
-    socketRef.current.on('receiveMessage', (message) => {
+    socket.on('receiveMessage', (message) => {
       console.log('ChatPage: Received message:', message);
       if (selectedConversation && message.conversation === selectedConversation._id) {
         setMessages((prev) => [...prev, message]);
@@ -142,61 +172,55 @@ const ChatPage = () => {
         socketRef.current = null;
       }
     };
-  }, [token, SOCKET_SERVER_URL, userId, navigate, selectedConversation]); // selectedConversation needs to be here to join/leave rooms correctly
+  }, [token, SOCKET_SERVER_URL, userId, navigate]);
 
   // --- EFFECT 5: Scroll to bottom of messages ---
-  // This useEffect must also be unconditional.
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
 
-  // --- Now, conditional rendering can happen AFTER all hooks have been called ---
   if (!token || !userInfo || !userId) {
     return (
       <p className="text-center text-red-500 mt-10">
         You are not logged in. Redirecting to login...
       </p>
-    ); // This is the early return for rendering
+    );
   }
 
-  // --- Helper function to select a conversation ---
   const selectConversation = async (convo) => {
-    // ... (rest of this function remains the same)
-    if (selectedConversation?._id !== convo._id) {
-        setSelectedConversation(convo);
-        setMessages([]); // Clear messages when selecting new conversation
+    if (!convo || selectedConversation?._id === convo._id) return;
 
-        if (socketRef.current?.connected) {
-            // Leave previous conversation room if any
-            if (selectedConversation) {
-                socketRef.current.emit('leaveConversation', selectedConversation._id); // Assuming you add this to backend
-                console.log(`ChatPage: Leaving conversation room ${selectedConversation._id}`);
-            }
-            socketRef.current.emit('joinConversation', convo._id);
-            console.log(`ChatPage: Joining conversation room ${convo._id}`);
-        } else {
-            console.warn('ChatPage: Socket not connected when trying to join conversation. This might be okay if it connects shortly.');
+    if (socketRef.current?.connected) {
+        if (selectedConversation) {
+            socketRef.current.emit('leaveConversation', selectedConversation._id);
+            console.log(`ChatPage: Leaving conversation room ${selectedConversation._id}`);
         }
+        socketRef.current.emit('joinConversation', convo._id);
+        console.log(`ChatPage: Joining conversation room ${convo._id}`);
+    } else {
+        console.warn('ChatPage: Socket not connected when trying to join conversation. Messages might not be real-time.');
+    }
 
-        try {
-            const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/chat/messages/${convo._id}`, config());
-            setMessages(data);
-            setError('');
-        } catch (error) {
-            console.error("ChatPage: Error fetching messages for conversation:", error.response?.data?.message || error.message);
-            setError(error.response?.data?.message || "Failed to fetch messages for this conversation.");
-            setMessages([]);
-            if (error.response?.status === 401) {
-                navigate('/login');
-            }
+    setSelectedConversation(convo);
+    setMessages([]);
+
+    try {
+        console.log(`ChatPage: Fetching messages for conversation ${convo._id}.`);
+        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/chat/messages/${convo._id}`, config());
+        setMessages(data);
+        setError('');
+    } catch (error) {
+        console.error("ChatPage: Error fetching messages for conversation:", error.response?.data?.message || error.message);
+        setError(error.response?.data?.message || "Failed to fetch messages for this conversation.");
+        setMessages([]);
+        if (error.response?.status === 401) {
+            navigate('/login');
         }
     }
   };
 
-  // --- Helper function to send a message ---
   const sendMessage = async (e) => {
-    // ... (rest of this function remains the same)
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
     if (!socketRef.current?.connected) {
@@ -230,7 +254,6 @@ const ChatPage = () => {
     }]);
   };
 
-  // --- Conditional Rendering for Loading/Error states (after all hooks and early returns) ---
   if (loadingConversations) {
     return <p className="text-center mt-10">Loading conversations...</p>;
   }
@@ -241,59 +264,55 @@ const ChatPage = () => {
 
   // --- Main Chat UI ---
   return (
-    // ... (rest of your JSX) ...
-    <div className="flex h-[80vh] bg-gray-100 rounded-lg shadow-lg overflow-hidden">
-      <div className="w-1/4 bg-white border-r border-gray-200 p-4 overflow-y-auto"> {/* Sidebar */}
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">Conversations</h2>
+    <div className="chat-container">
+      <div className="chat-sidebar">
+        <h2>Conversations</h2>
         {conversations.length > 0 ? (
             conversations.map((convo) => (
             <div
                 key={convo._id}
-                className={`flex items-center p-3 mb-2 rounded-lg cursor-pointer transition-colors duration-200 ${selectedConversation?._id === convo._id ? 'bg-blue-100 text-blue-800' : 'hover:bg-gray-50'}`}
+                className={`conversation-tab ${selectedConversation?._id === convo._id ? 'selected' : ''}`}
                 onClick={() => selectConversation(convo)}
             >
-                {/* Display other participant's name (and potentially avatar) */}
-                <div className="flex-grow">
-                    <span className="font-medium">
+                <div>
+                    <span>
                         {convo.participants.find(p => p._id !== userId)?.name || 'Unknown User'}
                     </span>
-                    {/* <p className="text-sm text-gray-500">Last message snippet...</p> */}
                 </div>
             </div>
             ))
         ) : (
-            <p className="text-gray-500">No conversations found.</p>
+            <p>No conversations found.</p>
         )}
       </div>
-      <div className="flex-1 flex flex-col bg-gray-50"> {/* Main Chat Area */}
-        {!socketConnected && <p className="p-2 text-center text-orange-600 bg-orange-50">Connecting to chat server...</p>}
+      <div className="chat-main">
+        {!socketConnected && <p className="chat-status-message connecting">Connecting to chat server...</p>}
         {selectedConversation ? (
+          // This fragment `( <> ... </> )` is crucial when returning multiple sibling elements conditionally
           <>
-            <div className="flex-1 p-4 overflow-y-auto space-y-3"> {/* Messages */}
+            <div className="chat-messages">
               {messages.map((msg) => (
-                <div key={msg._id} className={`flex ${msg.sender === userId ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`p-3 rounded-lg max-w-xs ${msg.sender === userId ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-800'}`}>
+                <div key={msg._id} className={`message ${msg.sender === userId ? 'sent' : 'received'}`}>
                     <p>{msg.text}</p>
-                    <span className="block text-xs mt-1 opacity-75">
+                    <small style={{ fontSize: '0.75rem', opacity: '0.75', display: 'block' }}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
+                    </small>
                 </div>
               ))}
               <div ref={messagesEndRef} />
             </div>
-            <form onSubmit={sendMessage} className="p-4 bg-white border-t border-gray-200 flex items-center">
+            <form onSubmit={sendMessage} className="chat-form">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type a message..."
-                className="flex-1 border border-gray-300 rounded-lg p-3 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="chat-form-input" // Changed to more specific class to avoid conflicts
                 disabled={!socketConnected}
               />
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-5 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="chat-form-button" // Changed to more specific class to avoid conflicts
                 disabled={!newMessage.trim() || !socketConnected}
               >
                 Send
@@ -301,7 +320,7 @@ const ChatPage = () => {
             </form>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500 text-lg">Select a conversation to start chatting.</div>
+          <div className="no-chat-selected">Select a conversation to start chatting.</div>
         )}
       </div>
     </div>

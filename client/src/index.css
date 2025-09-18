@@ -192,25 +192,29 @@ code {
   align-self: flex-start;
 }
 
+/* In your client/src/index.css file */
+
+/* ... other chat styles ... */
+
 .chat-form {
   display: flex;
   padding: 1rem;
   border-top: 1px solid #ddd;
 }
 
-.chat-form input {
+.chat-form-input { /* NEW CLASS NAME */
   flex-grow: 1;
   border: 1px solid #ccc;
   border-radius: 20px;
   padding: 0.75rem;
+  margin-right: 0.5rem; /* Add margin here for spacing */
 }
 
-.chat-form button {
+.chat-form-button { /* NEW CLASS NAME */
   border: none;
   background: #3498db;
   color: white;
   padding: 0.75rem 1.5rem;
-  margin-left: 0.5rem;
   border-radius: 20px;
   cursor: pointer;
 }
