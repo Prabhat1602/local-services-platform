@@ -1,5 +1,5 @@
 // client/src/pages/ProviderEarningsPage.js
-import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback for memoizing config
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const ProviderEarningsPage = () => {
@@ -7,60 +7,58 @@ const ProviderEarningsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // --- FIX 1: Define userInfo FIRST ---
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  // --- FIX 2: Then define token and userId ---
   const token = userInfo?.token;
-  const userId = userInfo?._id;
+  const userId = userInfo?._id; // Keeping userId, though it might not be strictly needed for this particular API call
 
-  // --- FIX 3: Memoize config using useCallback to prevent unnecessary re-renders/fetches ---
   const config = useCallback(() => ({
     headers: { Authorization: `Bearer ${token}` },
-  }), [token]); // Dependency array: config only changes if token changes
+  }), [token]); // config only changes if token changes
 
   useEffect(() => {
-    // Ensure both userInfo and token are available
-    if (!userInfo || !token) {
-      setLoading(false); // No user info, so stop loading
-      setError('Please log in as a provider to view earnings.');
+    // Only proceed if we have a token (user is logged in and potentially a provider)
+    if (!token) {
+      setLoading(false);
+      setError('Please log in to view earnings.'); // More general message
       return;
     }
 
     const fetchStats = async () => {
-      setLoading(true); // Ensure loading is true when starting fetch
-      setError('');      // Clear any previous errors
+      setLoading(true);
+      setError('');
       try {
         // Use the memoized config function to get the headers
-        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/provider/stats`, config()); // Call config as a function
+        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/provider/stats`, config());
         setStats(data);
       } catch (err) {
         console.error("Failed to fetch earnings data:", err.response?.data?.message || err.message);
-        setError('Failed to fetch earnings data. Please try again.');
-        // Optionally, if it's a 401/403, redirect to login
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-            setError('Unauthorized. Please ensure you are logged in as a provider.');
-            // navigate('/login'); // If you import useNavigate
+        setError('Failed to fetch earnings data. ' + (err.response?.data?.message || err.message)); // Include backend message if available
+        if (err.response && err.response.status === 403) { // Specifically for 403 Forbidden
+            setError('Access Denied. You must be a provider to view this page.');
+        } else if (err.response && err.response.status === 401) { // Specifically for 401 Unauthorized
+            setError('Authentication required. Please log in.');
+            // navigate('/login'); // Uncomment if you import useNavigate
         }
       } finally {
         setLoading(false);
       }
     };
 
-    // --- FIX 4: Only fetch if we have a token ---
-    fetchStats(); // Call fetchStats directly, no need for if (userInfo?.token) here.
-                  // The checks for userInfo/token are now inside fetchStats or at the top of useEffect.
+    fetchStats();
 
-  }, [token, userId, userInfo, config]); // Dependencies for useEffect
+  // --- FIX: Dependency array only includes token and config (which itself depends on token) ---
+  // userInfo object itself is removed to prevent constant re-renders
+  // userId is also removed as it's not directly used in the API call's dependencies.
+  }, [token, config]); // Now, this effect only re-runs if `token` or `config` (which relies on token) changes.
 
-  // --- Render based on state ---
   if (loading) return <p>Loading earnings data...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
-  if (!stats) return <p>No earnings data available. Are you registered as a provider?</p>; // Handle case where stats might be null after loading
+  if (!stats) return <p>No earnings data available. Are you registered as a provider?</p>;
 
   return (
     <div className="earnings-container">
-      <h1>My Earnings & Stats (v2)</h1>
-      {stats && ( // This check is redundant due to the previous `if (!stats) return` but harmless
+      <h1>My Earnings & Stats</h1>
+      {stats && (
         <div className="stats-grid">
           <div className="stat-card">
             <h4>Total Bookings</h4>
@@ -72,12 +70,10 @@ const ProviderEarningsPage = () => {
           </div>
           <div className="stat-card">
             <h4>Total Revenue</h4>
-            <p>${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}</p> {/* Handle undefined totalRevenue */}
+            <p>${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}</p>
           </div>
-          {/* You could add a 'Net Earnings' card here if you implement a platform fee */}
         </div>
       )}
-      {/* You could add a detailed list of transactions/bookings below */}
     </div>
   );
 };
