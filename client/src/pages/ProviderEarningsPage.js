@@ -59,7 +59,7 @@ const ProviderEarningsPage = () => {
 
   return (
     <div className="earnings-container">
-      <h1>My Earnings & Stats</h1>
+      <h1>My Earnings & Stats (v2)</h1>
       {stats && ( // This check is redundant due to the previous `if (!stats) return` but harmless
         <div className="stats-grid">
           <div className="stat-card">
