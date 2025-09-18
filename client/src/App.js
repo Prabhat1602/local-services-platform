@@ -8,7 +8,8 @@ import Navbar from './components/Navbar'; // <--- Ensure Navbar is imported
 // REMOVE: import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute'; // Corrected path if it's nested
-
+// --- IMPORT THE NEW ADMIN PLATFORM ACTIVITY PAGE ---
+import AdminPlatformActivityPage from './pages/AdminPlatformActivityPage'; // <-- NEW IMPORT
 // Pages - Public
 import HomePage from './pages/HomePage';
 import RegisterPage from './pages/RegisterPage';
@@ -66,6 +67,7 @@ function App() {
           {/* Admin Routes - Only accessible by Admin users */}
           <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                  <Route path="/admin/activity" element={<AdminRoute><AdminPlatformActivityPage /></AdminRoute>} /> {/* <-- NEW ROUTE */}
             <Route path="/admin/users" element={<AdminUserManagementPage />} />
             <Route path="/admin/reviews" element={<AdminReviewsPage />} />
             <Route path="/admin/transactions" element={<AdminTransactionsPage />} />

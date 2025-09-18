@@ -36,3 +36,4 @@ router.route('/transactions').get(protect, admin, adminController.getAllTransact
 
 
 module.exports = router;
+
