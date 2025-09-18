@@ -116,10 +116,12 @@ const AdminDashboardPage = () => {
             <StatCard title="Total Services" value={stats.totalServices || 0} icon="🛠️" />
             <StatCard title="Total Bookings" value={stats.totalBookings || 0} icon="📅" />
             <StatCard title="Total Revenue" value={`$${stats.totalRevenue ? stats.totalRevenue.toFixed(2) : '0.00'}`} icon="💰" />
-            {stats.averageRating != null && typeof stats.averageRating === 'number' ? (
-              <StatCard title="Average Rating" value={`⭐ ${stats.averageRating.toFixed(1)}`} icon="🌟" />
+           {/* Average Rating StatCard */}
+            {stats.averageRating !== undefined && stats.averageRating !== null && Number.isFinite(stats.averageRating) ? (
+              <StatCard title="Average Rating" value={`⭐ ${stats.averageRating.toFixed(1)}`} icon="⭐" />
             ) : (
-              <StatCard title="Average Rating" value="N/A" icon="🌟" />
+              // If it's explicitly 'N/A' from backend or not a finite number
+              <StatCard title="Average Rating" value={stats.averageRating === "N/A" ? "N/A" : "No ratings yet"} icon="⭐" />
             )}
           </div>
         ) : (
