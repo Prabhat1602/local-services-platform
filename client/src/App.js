@@ -5,7 +5,7 @@ import { Routes, Route } from 'react-router-dom';
 // === ALL IMPORTS SHOULD BE AT THE TOP ===
 // Components
 import Navbar from './components/Navbar'; // <--- Ensure Navbar is imported
-// REMOVE: import Header from './components/Header';
+
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute'; // Corrected path if it's nested
 // --- IMPORT THE NEW ADMIN PLATFORM ACTIVITY PAGE ---

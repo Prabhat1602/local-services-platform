@@ -44,4 +44,4 @@ const admin = (req, res, next) => { // This function is defined
 };
 
 // --- THIS IS THE CRITICAL FIX ---
-module.exports = { protect, provider, admin }; // <<< Add 'admin' here
+module.exports = { protect, provider, admin }; 

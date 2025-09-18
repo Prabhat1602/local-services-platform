@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Notifications from './Notifications';
 const Navbar = () => {
-   console.log("Navbar component is rendering!"); // <--- ADD THIS
+   console.log("Navbar component is rendering!"); 
   const navigate = useNavigate();
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
@@ -26,7 +26,7 @@ const Navbar = () => {
             <Link to="/chat" style={{ color: 'white', textDecoration: 'none' }}>Chat</Link>
 {userInfo && userInfo.role === 'admin' && (
   <>
-    {/* Consolidate or separate your admin links clearly */}
+    
     <Link to="/admin/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Admin Dashboard</Link>
     {/* If User Management is a separate section on the dashboard, you don't need a separate Navbar link */}
    

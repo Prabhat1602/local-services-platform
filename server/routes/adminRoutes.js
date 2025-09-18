@@ -4,7 +4,7 @@ const router = express.Router();
 
 const adminController = require('../controllers/adminController');
 // Check this import carefully:
-const { protect, admin } = require('../middleware/authMiddleware'); // <<< THIS LINE
+const { protect, admin } = require('../middleware/authMiddleware'); 
 
 
 // If you have a separate feedback controller, import it here:

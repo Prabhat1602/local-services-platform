@@ -228,7 +228,7 @@ Your frontend application should now be accessible at http://localhost:3000.
 (Optional section for your project's license)
 
 📞 Contact
-For any questions or support, please contact [Your Name/Email].
+For any questions or support, please contact [Prabhat Sahu/sprabhat1702@gmail.com].
 
 
 ---

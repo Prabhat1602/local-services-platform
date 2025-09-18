@@ -43,7 +43,7 @@ exports.getProviderBookings = async (req, res) => {
     const bookings = await Booking.find({ provider: req.user._id })
       .populate('service', 'title price')
       .populate('user', 'name email')
-      .sort({ createdAt: -1 }); // <-- ADD THIS LINE
+      .sort({ createdAt: -1 }); 
 
     res.json(bookings);
   } catch (error) {
@@ -53,10 +53,6 @@ exports.getProviderBookings = async (req, res) => {
 
 
 
-// ... (imports)
-
-
-// ... (keep the other controller functions)
 
 // @desc    Get all bookings for the logged-in USER
 // @route   GET /api/bookings/myuserbookings

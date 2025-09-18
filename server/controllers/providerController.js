@@ -1,5 +1,5 @@
 const Booking = require('../models/Booking');
-const User = require('../models/User'); // This line was likely missing
+const User = require('../models/User'); 
 const Transaction = require('../models/Transaction');
 // @desc    Get earnings and stats for the logged-in provider
 // @route   GET /api/provider/stats
