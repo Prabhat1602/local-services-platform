@@ -29,7 +29,11 @@ const Navbar = () => {
     {/* Consolidate or separate your admin links clearly */}
     <Link to="/admin/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>Admin Dashboard</Link>
     {/* If User Management is a separate section on the dashboard, you don't need a separate Navbar link */}
-    <Link to="/admin/bookings" style={{ color: 'white', textDecoration: 'none' }}>Platform Activity</Link>
+   // ...
+<a href="/admin/bookings" style={{ color: 'white', textDecoration: 'none' }}>
+  All Bookings {/* <--- CHANGE THIS TEXT */}
+</a>
+// ...
     <Link to="/admin/reviews" style={{ color: 'white', textDecoration: 'none' }}>Reviews</Link>
     <Link to="/admin/transactions" style={{color: 'white', textDecoration: 'none'}}>Transactions</Link>
     <Link to="/admin/feedback" style={{color: 'white', textDecoration: 'none'}}>Feedback</Link>
