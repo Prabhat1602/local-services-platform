@@ -9,7 +9,7 @@ import Navbar from './components/Navbar'; // <--- Ensure Navbar is imported
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute'; // Corrected path if it's nested
 // --- IMPORT THE NEW ADMIN PLATFORM ACTIVITY PAGE ---
-import AdminBookingsPage from './pages/AllBookingsPageBookingsPage'; // <-- NEW IMPORT
+import AdminBookingsPage from './pages/AllBookingsPage'; // <-- NEW IMPORT
 // Pages - Public
 import HomePage from './pages/HomePage';
 import RegisterPage from './pages/RegisterPage';
