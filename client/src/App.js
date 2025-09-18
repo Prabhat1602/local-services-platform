@@ -9,7 +9,7 @@ import Navbar from './components/Navbar'; // <--- Ensure Navbar is imported
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute'; // Corrected path if it's nested
 // --- IMPORT THE NEW ADMIN PLATFORM ACTIVITY PAGE ---
-import AdminBookingsPage from './pages/AdminBookingsPage'; // <-- NEW IMPORT
+import AdminBookingsPage from './pages/AllBookingsPageBookingsPage'; // <-- NEW IMPORT
 // Pages - Public
 import HomePage from './pages/HomePage';
 import RegisterPage from './pages/RegisterPage';
@@ -35,6 +35,7 @@ import AdminUserManagementPage from './pages/AdminUserManagementPage';
 import AdminReviewsPage from './pages/AdminReviewsPage';
 import AdminTransactionsPage from './pages/AdminTransactionsPage';
 import AdminFeedbackPage from './pages/AdminFeedbackPage';
+import AllBookingsPage from './pages/AllBookingsPage';
 
 
 function App() {
@@ -67,7 +68,7 @@ function App() {
           {/* Admin Routes - Only accessible by Admin users */}
           <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-                     <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} /> {/* <-- NEW ROUTE */}
+             <Route path="/admin/bookings" element={<AdminRoute><AllBookingsPage/></AdminRoute>} /> {/* <-- NEW ROUTE */}
             <Route path="/admin/users" element={<AdminUserManagementPage />} />
             <Route path="/admin/reviews" element={<AdminReviewsPage />} />
             <Route path="/admin/transactions" element={<AdminTransactionsPage />} />
