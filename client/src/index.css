@@ -1,3 +1,4 @@
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -11,6 +12,187 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* --- Global Utilities (for general buttons, status badges) --- */
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  white-space: nowrap; /* Prevent buttons from wrapping text */
+}
+
+.btn-cancel { background-color: #e74c3c; color: white; }
+.btn-cancel:hover { background-color: #c0392b; }
+.btn-review { background-color: #3498db; color: white; }
+.btn-review:hover { background-color: #2980b9; }
+.btn-submit { background-color: #27ae60; color: white; }
+.btn-secondary { background-color: #bdc3c7; color: #333; }
+.btn-reschedule { background-color: #f39c12; color: white; }
+.btn-reschedule:hover { background-color: #e67e22; }
+.btn-pay { background-color: #27ae60; color: white; }
+.btn-pay:hover { background-color: #229954; }
+.btn-delete { background-color: #95a5a6; color: white; margin-left: auto; }
+.btn-delete:hover { background-color: #7f8c8d; }
+.btn-dispute { background-color: #f39c12; color: white; }
+.btn-dispute:hover { background-color: #e67e22; }
+.btn-approve { background-color: #27ae60; color: white; margin-right: 0.5rem; }
+.btn-approve:hover { background-color: #229954; }
+.btn-reject { background-color: #e74c3c; color: white; }
+.btn-reject:hover { background-color: #c0392b; }
+
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap; /* Prevent badge text from wrapping */
+}
+
+.status-pending { background-color: #f39c12; }
+.status-confirmed { background-color: #2980b9; }
+.status-completed { background-color: #27ae60; }
+.status-cancelled { background-color: #7f8c8d; }
+
+
+/* --- Admin Dashboard Specific Styles --- */
+
+.admin-dashboard-container {
+  max-width: 1200px;
+  margin: 20px auto; /* Centered with top/bottom margin */
+  padding: 20px;
+  background-color: #f8f8f8; /* Light background */
+  min-height: calc(100vh - 80px); /* Adjust based on your navbar height */
+  box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+.admin-dashboard-container h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #212121;
+  margin-bottom: 25px;
+  text-align: center; /* Center the dashboard title */
+}
+
+/* Card styles for sections (stats, pending, feedback) */
+.card-section {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  margin-bottom: 20px; /* Space between sections */
+}
+
+.card-section h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #424242;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee; /* Separator for section titles */
+  padding-bottom: 10px;
+}
+
+/* Stats Grid for Platform Statistics */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid for cards */
+  gap: 20px;
+}
+
+/* Stat Card specific styles */
+.stat-card-item {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Space between icon and text */
+}
+
+.stat-card-item .icon {
+  font-size: 3rem; /* Larger icon */
+  color: #3f51b5; /* Blue color for icons */
+  min-width: 50px; /* Ensure icon has space */
+  text-align: center;
+}
+
+.stat-card-item .info h4 {
+  color: #616161;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.stat-card-item .info p {
+  font-size: 1.6rem; /* Slightly smaller for better fit */
+  font-weight: bold;
+  color: #212121;
+  margin: 0;
+}
+
+/* Admin Table styles (for pending providers and feedback) */
+.admin-table-responsive {
+  overflow-x: auto; /* Makes table scrollable on small screens */
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.admin-table th, .admin-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.admin-table th {
+  background-color: #e8eaf6; /* Light blue header */
+  color: #3f51b5;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.admin-table tbody tr:nth-child(even) {
+  background-color: #f5f5f5; /* Zebra striping */
+}
+
+.admin-table tbody tr:hover {
+  background-color: #e0e0e0; /* Hover effect */
+}
+
+/* Specific styles for feedback message truncation */
+.feedback-message-cell {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Alert messages (success/error banners) */
+.alert {
+  padding: 12px 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.alert-success {
+  background-color: #e8f5e9; /* Light green */
+  color: #388e3c; /* Darker green */
+  border: 1px solid #a5d6a7;
+}
+
+.alert-error {
+  background-color: #ffebee; /* Light red */
+  color: #d32f2f; /* Darker red */
+  border: 1px solid #ef9a9a;
+}
+
 /* --- My Bookings Page Styles --- */
 
 .bookings-container {
@@ -70,63 +252,6 @@ code {
   gap: 0.5rem;
 }
 
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: white;
-}
-
-.status-pending { background-color: #f39c12; }
-.status-confirmed { background-color: #2980b9; }
-.status-completed { background-color: #27ae60; }
-.status-cancelled { background-color: #7f8c8d; }
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
-}
-
-.btn-cancel { background-color: #e74c3c; color: white; }
-.btn-cancel:hover { background-color: #c0392b; }
-.btn-review { background-color: #3498db; color: white; }
-.btn-review:hover { background-color: #2980b9; }
-.btn-submit { background-color: #27ae60; color: white; }
-.btn-secondary { background-color: #bdc3c7; color: #333; }
-
-.review-form {
-  margin: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.review-form .form-group {
-  margin-bottom: 1rem;
-}
-
-.review-form .form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.review-form select,
-.review-form textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.review-form .form-actions {
-  display: flex;
-  gap: 0.5rem;
-}
 /* --- Chat Page Styles --- */
 .chat-container {
   display: flex;
@@ -192,25 +317,21 @@ code {
   align-self: flex-start;
 }
 
-/* In your client/src/index.css file */
-
-/* ... other chat styles ... */
-
 .chat-form {
   display: flex;
   padding: 1rem;
   border-top: 1px solid #ddd;
 }
 
-.chat-form-input { /* NEW CLASS NAME */
+.chat-form-input {
   flex-grow: 1;
   border: 1px solid #ccc;
   border-radius: 20px;
   padding: 0.75rem;
-  margin-right: 0.5rem; /* Add margin here for spacing */
+  margin-right: 0.5rem;
 }
 
-.chat-form-button { /* NEW CLASS NAME */
+.chat-form-button {
   border: none;
   background: #3498db;
   color: white;
@@ -270,6 +391,8 @@ code {
 .profile-form input:disabled {
   background: #f4f4f4;
 }
+
+/* --- Notification Styles --- */
 .notification-container {
   position: relative;
 }
@@ -319,15 +442,8 @@ code {
   margin-top: 0.25rem;
   color: #888;
 }
-/* Add these to your existing styles */
-.btn-reschedule {
-  background-color: #f39c12;
-  color: white;
-}
-.btn-reschedule:hover {
-  background-color: #e67e22;
-}
 
+/* --- Reschedule Form Styles --- */
 .reschedule-form {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -367,24 +483,21 @@ code {
   border-color: #bdc3c7;
   cursor: not-allowed;
 }
-/* Add this to your existing styles */
-.btn-pay {
-  background-color: #27ae60;
-  color: white;
+
+/* --- Dispute Message Styles --- */
+.dispute-filed-message {
+  padding: 0.75rem;
+  margin: 1rem 1.5rem 0;
+  background-color: #fff0f0;
+  color: #c0392b;
+  border: 1px solid #e74c3c;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: 600;
 }
-.btn-pay:hover {
-  background-color: #229954;
-}
-/* Add this to your existing button styles */
-.btn-delete {
-  background-color: #95a5a6;
-  color: white;
-  margin-left: auto; /* Pushes the button to the far right */
-}
-.btn-delete:hover {
-  background-color: #7f8c8d;
-}
-.admin-section {
+
+/* --- Admin Section General Styles (for tables like pending providers) --- */
+.admin-section { /* Renamed from 'admin-section' to 'card-section' to consolidate */
   margin-bottom: 2rem;
   background: white;
   padding: 1.5rem;
@@ -403,72 +516,13 @@ code {
   text-align: left;
 }
 
-.btn-approve {
-  background-color: #27ae60;
-  color: white;
-  margin-right: 0.5rem;
-}
-.btn-reject {
-  background-color: #e74c3c;
-  color: white;
-}
-/* Add these to your existing styles */
-.btn-dispute {
-  background-color: #f39c12;
-  color: white;
-}
-.btn-dispute:hover {
-  background-color: #e67e22;
-}
 
-.dispute-filed-message {
-  padding: 0.75rem;
-  margin: 1rem 1.5rem 0;
-  background-color: #fff0f0;
-  color: #c0392b;
-  border: 1px solid #e74c3c;
-  border-radius: 5px;
-  text-align: center;
-  font-weight: 600;
-}
-/* --- Admin Stats Grid Styles --- */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-  margin-right: 1rem;
-}
-
-.stat-info h4 {
-  margin: 0 0 0.25rem 0;
-  color: #555;
-  font-size: 1rem;
-}
-
-.stat-info p {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 1.75rem;
-  font-weight: 600;
-}
+/* --- Earnings Container Styles --- */
 .earnings-container {
   max-width: 900px;
   margin: 2rem auto;
 }
+
 /* --- Transactions Page Styles --- */
 .transactions-container {
   max-width: 1000px;
@@ -499,12 +553,14 @@ code {
 .transactions-container thead {
   background-color: #f7f9fc;
 }
-/* Add this new style to the bottom of your CSS file */
+
+/* --- Admin Link Styles --- */
 .admin-link {
-  color: white !important; /* Use !important to override other styles */
+  color: white !important;
   text-decoration: none;
   font-weight: bold;
 }
+
 /* --- Support Page Styles --- */
 .support-container { max-width: 700px; margin: 2rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 .support-form { display: flex; flex-direction: column; gap: 1rem; }
@@ -519,7 +575,8 @@ code {
 .feedback-header h3 { margin: 0; }
 .feedback-body { padding: 1.5rem; line-height: 1.6; }
 .feedback-footer { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #f7f9fc; border-top: 1px solid #e0e0e0; font-size: 0.9rem; color: #555; }
-/* --- Form Styles --- */
+
+/* --- Form Styles (General) --- */
 .form-container {
   display: flex;
   justify-content: center;
@@ -552,6 +609,7 @@ code {
 }
 
 .service-form input,
+.service-form select,
 .service-form textarea {
   width: 100%;
   padding: 0.75rem;
@@ -564,3 +622,5 @@ code {
   min-height: 120px;
   resize: vertical;
 }
+
+
