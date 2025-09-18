@@ -68,7 +68,7 @@ function App() {
           {/* Admin Routes - Only accessible by Admin users */}
           <Route element={<AdminRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-             <Route path="/admin/bookings" element={<AdminRoute><AllBookingsPage/></AdminRoute>} /> {/* <-- NEW ROUTE */}
+             <Route path="/admin/bookings" element={<AllBookingsPage/>} /> {/* <-- NEW ROUTE */}
             <Route path="/admin/users" element={<AdminUserManagementPage />} />
             <Route path="/admin/reviews" element={<AdminReviewsPage />} />
             <Route path="/admin/transactions" element={<AdminTransactionsPage />} />
