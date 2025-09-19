@@ -229,7 +229,7 @@ The Admin Dashboard provides a snapshot of the platform's health:
 * **Q: I forgot my password. How do I reset it?**
     * A: On the login page, click "Forgot Password". Enter your email, and you'll receive instructions to reset it.
 
-*(Add more FAQs relevant to common user queries)*
+
 
 ## 8. Contact Support
 
