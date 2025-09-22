@@ -139,7 +139,7 @@ const ProviderAvailabilityPage = () => {
             <select id="service-select" value={selectedServiceId} onChange={(e) => handleServiceSelect(e.target.value)}>
               {/* FIX 2: Changed service.title to service.name */}
               {myServices.map(service => (
-                <option key={service._id} value={service._id}>{service.name}</option>
+                <option key={service._id} value={service._id}>{service.title}</option>
               ))}
             </select>
           </div>
