@@ -63,23 +63,24 @@ exports.getUserBookings = async (req, res) => {
       .populate('service', 'title price')
       .populate('provider', 'name email')
           .sort({ createdAt: -1 }) // <-- ADD THIS LINE
-      .lean(); // .lean() makes the data plain objects, easier to modify
+     // .lean(); // .lean() makes the data plain objects, easier to modify
       
-    // For each booking, check if a review exists
-    const bookingsWithReviewStatus = await Promise.all(
-      bookings.map(async (booking) => {
-        const review = await Review.findOne({
-          service: booking.service._id,
-          user: req.user._id,
-        });
-        return {
-          ...booking,
-          hasBeenReviewed: !!review, // Add true/false flag
-        };
-      })
-    );
+    // // For each booking, check if a review exists
+    // const bookingsWithReviewStatus = await Promise.all(
+    //   bookings.map(async (booking) => {
+    //     const review = await Review.findOne({
+    //       service: booking.service._id,
+    //       user: req.user._id,
+    //     });
+    //     return {
+    //       ...booking,
+    //       hasBeenReviewed: !!review, // Add true/false flag
+    //     };
+    //   })
+    // // );
 
-    res.json(bookingsWithReviewStatus);
+    // res.json(bookingsWithReviewStatus);
+    res.json(bookings); //added
   } catch (error) {
     res.status(500).json({ message: 'Server Error: ' + error.message });
   }
