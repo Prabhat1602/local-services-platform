@@ -1,25 +1,45 @@
-const sgMail = require('@sendgrid/mail');
+// backend/utils/sendEmail.js
 
-// Set the API key from your environment variables
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const nodemailer = require('nodemailer');
 
-const sendEmail = (to, subject, html) => {
-  const msg = {
-    to: to, // The recipient's email address
-    from: process.env.FROM_EMAIL, // Your verified sender email
-    subject: subject,
-    html: html, // The HTML content of the email
-  };
+// 1. Create a Nodemailer transporter using Mailgun's SMTP details
+const transporter = nodemailer.createTransport({
+  host: process.env.MAILGUN_SMTP_HOST,
+  port: process.env.MAILGUN_SMTP_PORT,
+  secure: false, // Use 'true' for port 465 (SSL/TLS), 'false' for 587 (STARTTLS)
+                 // Mailgun typically uses 587 with STARTTLS (secure: false)
+  auth: {
+    user: process.env.MAILGUN_SMTP_USER,
+    pass: process.env.MAILGUN_SMTP_PASS,
+  },
+});
 
-  // Send the email
-  sgMail
-    .send(msg)
-    .then(() => {
-      console.log('✅ Email sent successfully via SendGrid');
-    })
-    .catch((error) => {
-      console.error('❌ Error sending email via SendGrid:', error.response.body);
-    });
-};
+// 2. Function to send an email with robust error handling
+async function sendEmail({ to, subject, text, html }) {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || '"Your App" <noreply@example.com>', // Fallback sender
+      to: to,
+      subject: subject,
+      text: text, // Plain text body
+      html: html, // HTML body
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log('Email sent: %s', info.messageId);
+    // You can log the preview URL if using ethereal for testing
+    // console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('❌ Error sending email via Nodemailer/Mailgun:', error);
+    // Log detailed error for debugging
+    if (error.response) {
+      console.error('Mailgun Response Error:', error.response);
+    }
+    return { success: false, error: error.message };
+  }
+}
 
 module.exports = sendEmail;
