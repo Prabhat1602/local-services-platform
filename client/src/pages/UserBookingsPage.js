@@ -151,7 +151,10 @@ const RescheduleForm = ({ booking, onRescheduleSuccess, onCancel }) => {
     const bookingToReview = bookings.find(b => b._id === showReviewFormFor);
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.post(`${process.env.REACT_APP_API_URL}/reviews`, { serviceId: bookingToReview.service._id, rating, comment }, config);
+      await axios.post(`${process.env.REACT_APP_API_URL}/reviews`, {  serviceId: bookingToReview.service._id,
+          bookingId: bookingToReview._id, // <--- THIS IS THE CRITICAL ADDITION
+          rating,
+          comment}, config);
       setShowReviewFormFor(null);
       fetchUserBookings();
     } catch (err) {
