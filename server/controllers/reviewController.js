@@ -3,7 +3,7 @@
 const Review = require('../models/Review');
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
-const Notification = require('../models/NotificationModel'); // Assuming your Notification model is here
+const Notification = require('../models/Notification'); // Correct path if file is Notification.js // Assuming your Notification model is here
 
 // @desc    Create a new review
 // @route   POST /api/reviews
