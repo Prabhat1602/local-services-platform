@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-
+const jwt = require('jsonwebtoken');//new
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
+   // --- NEW FIELDS FOR PASSWORD RESET ---
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    // --- END NEW FIELDS ---
   role: {
     type: String,
     enum: ['user', 'provider', 'admin'], // Correctly defined role field
@@ -61,5 +65,26 @@ UserSchema.pre('save', async function(next) {
 UserSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+// Generate JWT token method
+userSchema.methods.generateAuthToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: '1h', // Or whatever your token expiry is
+  });
+};
+// --- NEW METHOD FOR GENERATING PASSWORD RESET TOKEN ---
+userSchema.methods.getResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString('hex'); // Generate random hex token
 
+  // Hash token and save to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set token expire time (e.g., 15 minutes)
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+  return resetToken; // Return the unhashed token to send in email
+};
+// --- END NEW METHOD ---
 module.exports = mongoose.model('User', UserSchema);

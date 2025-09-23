@@ -17,7 +17,8 @@ import LoginPage from './pages/LoginPage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import SupportPage from './pages/SupportPage';
-
+import ForgotPasswordPage from './pages/ForgotPasswordPage'; // Import new page
+import ResetPasswordPage from './pages/ResetPasswordPage';   // Import new page
 // Pages - Private (User/Provider)
 import CreateServicePage from './pages/CreateServicePage';
 import ProviderDashboardPage from './pages/ProviderDashboardPage';
@@ -48,6 +49,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+           {/* --- NEW ROUTES --- */}
+          <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+          <Route path="/resetpassword/:resetToken" element={<ResetPasswordPage />} />
+          {/* --- END NEW ROUTES --- */}
           <Route path="/service/:id" element={<ServiceDetailPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route path="/support" element={<SupportPage />} />

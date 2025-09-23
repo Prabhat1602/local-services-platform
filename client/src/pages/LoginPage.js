@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate } from 'react-router-dom';
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -29,6 +30,11 @@ const LoginPage = () => {
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ padding: '0.5rem' }} />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ padding: '0.5rem' }} />
         <button type="submit" style={{ padding: '0.75rem', background: '#27ae60', color: 'white', border: 'none', cursor: 'pointer' }}>Login</button>
+         {/* --- ADD FORGOT PASSWORD LINK --- */}
+        <div className="forgot-password-link">
+          <Link to="/forgotpassword">Forgot Password?</Link>
+        </div>
+        {/* --- END FORGOT PASSWORD LINK --- */}
       </form>
     </div>
   );
