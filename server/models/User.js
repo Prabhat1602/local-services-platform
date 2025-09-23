@@ -66,13 +66,13 @@ UserSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 // Generate JWT token method
-userSchema.methods.generateAuthToken = function () {
+UserSchema.methods.generateAuthToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: '1h', // Or whatever your token expiry is
   });
 };
 // --- NEW METHOD FOR GENERATING PASSWORD RESET TOKEN ---
-userSchema.methods.getResetPasswordToken = function () {
+UserSchema.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString('hex'); // Generate random hex token
 
   // Hash token and save to resetPasswordToken field
