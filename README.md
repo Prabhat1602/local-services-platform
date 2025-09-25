@@ -233,11 +233,3 @@ For any questions or support, please contact [Prabhat Sahu/sprabhat1702@gmail.co
 
 ---
 
-### **Remember to:**
-
-1.  **Create the `assets` folder** at the root of your project.
-2.  **Place your image files** inside the `assets` folder.
-3.  **Push the `assets` folder to GitHub.**
-4.  **Get the direct raw content URLs** for each image from GitHub.
-5.  **Replace the placeholder URLs** (`https://raw.githubusercontent.com/Prabhat1602/local-services-platform/main/assets/er-diagram.png` etc.) in the `README.md` file with your actual image URLs.
-6.  **Add relevant screenshots** for "Homepage," "Login Page," "Chat Interface," and "Service Detail Page" to your `assets` folder. You can add more as needed.
