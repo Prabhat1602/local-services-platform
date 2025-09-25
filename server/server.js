@@ -149,34 +149,29 @@ io.on('connection', (socket) => {
           updatedAt: Date.now(),
       });
 
-      // --- CRITICAL FIX: Save Notification to DB and then emit the saved object ---
+       // --- FIX FOR NOTIFICATION VALIDATION ERROR ---
       const conversation = await Conversation.findById(messageData.conversationId).populate('participants');
       if (conversation) {
-          conversation.participants.forEach(async (participant) => { // Added 'async' to forEach callback
-              if (participant._id.toString() !== messageData.sender.toString()) {
-                  // Create the notification in the database
-                  const newDbNotification = await Notification.create({ // <-- SAVE TO DB
-                      recipient: participant._id,
-                      sender: messageData.sender, // The sender of the message
-                      type: 'new_message',
-                      message: `New message from ${populatedMessage.sender.name || 'Unknown'}`,
-                      link: `/chat?conversationId=${messageData.conversationId}`, // Link to the specific chat
-                      conversation: messageData.conversationId, // Link to the specific conversation
-                      isRead: false, // Default to unread
-                  });
+        for (const participant of conversation.participants) {
+          if (participant._id.toString() !== messageData.sender.toString()) {
+            // Create a notification for the other participant
+            await Notification.create({
+              recipient: participant._id, // Provide the recipient's ID
+              type: 'new_message',       // Provide the notification type
+              message: `You have a new message from ${populatedMessage.sender.name || 'a user'}.`,
+              link: `/chat?conversationId=${messageData.conversationId}`,
+              sender: messageData.sender,
+            });
 
-                  // Populate sender for the notification before emitting to client
-                  // This is important for the frontend to display "from X"
-                  const populatedDbNotification = await Notification.findById(newDbNotification._id)
-                    .populate('sender', 'name profilePicture')
-                    .lean();
-
-                  // Emit the *saved and populated* notification to the recipient's personal room
-                  io.to(participant._id.toString()).emit('newNotification', populatedDbNotification); // <-- EMIT DB OBJECT
-                  console.log(`Sent notification to user ${participant._id}:`, populatedDbNotification);
-              }
-          });
+            // Emit the new notification to the recipient's personal room
+            io.to(participant._id.toString()).emit('newNotification', {
+              message: `You have a new message from ${populatedMessage.sender.name || 'a user'}.`,
+              link: `/chat?conversationId=${messageData.conversationId}`,
+            });
+          }
+        }
       }
+      // --- END FIX ---
 
     } catch (dbError) {
       console.error('Error saving message to DB or broadcasting:', dbError);

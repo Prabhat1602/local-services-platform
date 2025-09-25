@@ -50,8 +50,6 @@ exports.createCheckoutSession = async (req, res) => {
   }
 };
 
-// @desc    Update booking status after successful payment (called by Stripe Webhook)
-// This is an example of a webhook handler. In production, you'd need a more robust setup.
 exports.handleStripeWebhook = async (req, res) => {
     const event = req.body;
 
@@ -59,47 +57,58 @@ exports.handleStripeWebhook = async (req, res) => {
         const session = event.data.object;
         const bookingId = session.metadata.bookingId;
 
-        const booking = await Booking.findById(bookingId).populate('service user');
-        
-        if (booking) {
-            booking.isPaid = true;
-            booking.paidAt = new Date();
-            booking.status = 'Confirmed';
-            await booking.save();
-             
-             sendEmail(
-                booking.user.email,
-                'Payment Successful - Your Booking is Confirmed!',
-                `<h1>Payment Confirmed</h1><p>Your payment for "${booking.service.title}" was successful. Your booking is now confirmed.</p>`
-            );
-            // --- THIS IS THE FIX ---
-            // Find the provider and update their earnings total
-            const provider = await User.findById(booking.service.provider);
-            if(provider) {
-                // Add the price of the service to the provider's current earnings
-                provider.earnings = (provider.earnings || 0) + booking.service.price;
-                await provider.save();
+        try {
+            // --- FIX FOR DUPLICATE TRANSACTION ERROR ---
+            const existingTransaction = await Transaction.findOne({ stripePaymentId: session.payment_intent });
+            if (existingTransaction) {
+                console.log('Webhook received for an already processed transaction.');
+                return res.json({ received: true }); // Acknowledge the event to prevent retries
             }
             // --- END FIX ---
-                 await Transaction.create({
-                booking: bookingId,
-                user: booking.user._id,
-                provider: booking.provider._id,
-                amount: booking.service.price,
-                stripePaymentId: session.payment_intent,
-            });
-            // Create notifications (this part is the same as before)
-            await Notification.create({
-                user: booking.user._id,
-                message: `Your payment for "${booking.service.title}" was successful!`,
-                link: '/my-bookings'
-            });
-            await Notification.create({
-                user: booking.provider,
-                message: `A new booking for "${booking.service.title}" has been paid for.`,
-                link: '/dashboard'
-            });
-             }
+
+            const booking = await Booking.findById(bookingId).populate('service user provider');
+            
+            if (booking && !booking.isPaid) {
+                booking.isPaid = true;
+                booking.paidAt = new Date();
+                booking.status = 'Confirmed';
+                await booking.save();
+
+                const provider = await User.findById(booking.provider._id);
+                if(provider) {
+                    provider.earnings = (provider.earnings || 0) + booking.service.price;
+                    await provider.save();
+                }
+
+                await Transaction.create({
+                    booking: bookingId,
+                    user: booking.user._id,
+                    provider: booking.provider._id,
+                    amount: booking.service.price,
+                    stripePaymentId: session.payment_intent,
+                });
+
+                // --- FIX FOR NOTIFICATION VALIDATION ERROR ---
+                // Create a notification for the user
+                await Notification.create({
+                    recipient: booking.user._id,
+                    type: 'payment_success',
+                    message: `Your payment for "${booking.service.title}" was successful!`,
+                    link: '/my-bookings'
+                });
+                // Create a notification for the provider
+                await Notification.create({
+                    recipient: booking.provider._id,
+                    type: 'new_booking',
+                    message: `A new booking for your service "${booking.service.title}" has been paid for.`,
+                    link: '/dashboard'
+                });
+                // --- END FIX ---
+            }
+        } catch (error) {
+            console.error('Error processing webhook:', error);
+            return res.status(400).send(`Webhook Error: ${error.message}`);
+        }
     }
 
     res.json({ received: true });
